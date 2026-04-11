@@ -1,52 +1,24 @@
-# ─────────────────────────────────────────────
-# Stage 1: Build CKPool from source
-# ─────────────────────────────────────────────
-FROM alpine:3.19 AS builder
+FROM debian:bookworm-slim AS builder
 
-RUN apk add --no-cache \
-    git \
-    build-base \
-    autoconf \
-    automake \
-    libtool \
-    jansson-dev \
-    curl-dev \
-    pkgconf \
-    linux-headers
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git build-essential autoconf automake libtool \
+    libjansson-dev libcurl4-openssl-dev pkg-config \
+    ca-certificates libcap2-bin \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-
-# Clone CKPool source (Con Kolivas, official repo)
 RUN git clone --depth=1 https://bitbucket.org/ckolivas/ckpool.git .
+RUN autoreconf -fi && ./configure --prefix=/usr/local && make -j$(nproc)
 
-# Build
-RUN autoreconf -fi && \
-    ./configure --prefix=/usr/local && \
-    make -j$(nproc) && \
-    make install
+FROM debian:bookworm-slim
 
-# ─────────────────────────────────────────────
-# Stage 2: Minimal runtime image
-# ─────────────────────────────────────────────
-FROM alpine:3.19
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libjansson4 libcurl4 bash gettext-base curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apk add --no-cache \
-    jansson \
-    libcurl \
-    bash \
-    gettext
-
-# Copy compiled binary
-COPY --from=builder /usr/local/bin/ckpool /usr/local/bin/ckpool
-
-# Create directories
+COPY --from=builder /build/src/ckpool /usr/local/bin/ckpool
 RUN mkdir -p /ckpool/logs /ckpool/config
-
-# Copy entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-
-# Stratum port
 EXPOSE 3333
-
 ENTRYPOINT ["/entrypoint.sh"]
