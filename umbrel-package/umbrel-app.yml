@@ -1,0 +1,52 @@
+manifestVersion: 1
+id: ckpool-solo
+name: CKPool Solo
+version: "1.0.0"
+tagline: Self-sovereign Bitcoin solo mining — powered by CKPool
+description: >-
+  Run your own solo Bitcoin mining pool on your Umbrel node, powered by CKPool
+  — the same battle-tested software behind solo.ckpool.org, written by Con Kolivas.
+
+  Forked and packaged for Umbrel by Gil Bechtel at SoloStrike.io. Connect your
+  ASICs, BitAxe, or Nerd Miners directly to your own Bitcoin node. No third-party
+  pool, no fees, no KYC — just you and the Bitcoin network.
+
+  Features:
+  - Native vardiff with configurable min/max difficulty (no JS patches needed)
+  - Full ARM64 + AMD64 support (Raspberry Pi, Umbrel Home, x86)
+  - Built-in web dashboard showing hashrate, workers, and found blocks
+  - Connects automatically to your Umbrel Bitcoin node
+  - Stratum port 3333 — compatible with all miners
+
+  To mine, point your miner to:
+    Host: your-umbrel.local (or Umbrel IP)
+    Port: 3333
+    Username: YOUR_BTC_ADDRESS.workerName
+    Password: x
+
+  ─────────────────────────────────────────
+  Powered by CKPool © Con Kolivas (GPLv3)
+  https://bitbucket.org/ckolivas/ckpool
+  Umbrel packaging by Gil Bechtel · SoloStrike.io
+  ─────────────────────────────────────────
+
+developer: Gil Bechtel — SoloStrike.io
+website: https://solostrike.io
+dependencies:
+  - bitcoin
+repo: https://github.com/YOUR_GITHUB_USERNAME/ckpool-umbrel
+support: https://github.com/YOUR_GITHUB_USERNAME/ckpool-umbrel/issues
+port: 4040
+gallery:
+  - 1.jpg
+  - 2.jpg
+  - 3.jpg
+path: ""
+defaultPassword: ""
+releaseNotes: >-
+  Initial release of CKPool Solo for Umbrel by Gil Bechtel (SoloStrike.io).
+  - CKPool compiled from source — Con Kolivas (GPLv3)
+  - Web dashboard with hashrate, worker, and block stats
+  - Auto-connects to Umbrel Bitcoin node via internal RPC
+  - Configurable difficulty for any miner (Nerd Miners to ASICs)
+  - Multi-arch: AMD64 + ARM64

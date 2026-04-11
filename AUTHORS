@@ -1,0 +1,36 @@
+# AUTHORS
+# ─────────────────────────────────────────────────────────────────
+# CKPool Solo for Umbrel
+# ─────────────────────────────────────────────────────────────────
+
+## Umbrel Package & Fork
+# Packaged, forked, and adapted for Umbrel by:
+
+  Gil Bechtel
+  SoloStrike.io
+  https://solostrike.io
+
+  Modifications include:
+    - Docker containerization (multi-arch: AMD64 + ARM64)
+    - Automated config generation from Umbrel environment variables
+    - Umbrel app manifest and docker-compose integration
+    - Web dashboard (Node.js log reader + REST API bridge)
+    - Startup health checks and graceful Bitcoin node detection
+
+
+## Original CKPool Software
+# This package compiles and runs CKPool, created by:
+
+  Con Kolivas
+  https://bitbucket.org/ckolivas/ckpool
+
+  Andrew Smith
+
+  CKPool is copyright (C) Con Kolivas and Andrew Smith.
+  Licensed under the GNU General Public License v3.0.
+  Source: https://bitbucket.org/ckolivas/ckpool
+
+  Con Kolivas is also the creator of cgminer and the operator of
+  solo.ckpool.org — the original solo Bitcoin mining pool service.
+  If this software has value to you, consider contributing to the
+  authors listed above.

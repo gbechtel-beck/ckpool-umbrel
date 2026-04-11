@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoloStrike.io — CKPool Solo</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzBkMTExNyIvPgogIDx0ZXh0IHg9IjExIiB5PSIyMyIgZm9udC1mYW1pbHk9IklCTSBQbGV4IE1vbm8sbW9ub3NwYWNlIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjIyIiBmaWxsPSIjMzREMzk5Ij5TPC90ZXh0PgogIDx0ZXh0IHg9IjE3IiB5PSIyMSIgZm9udC1mYW1pbHk9IklCTSBQbGV4IE1vbm8sbW9ub3NwYWNlIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjIyIiBmaWxsPSIjRjk3MzE2Ij5TPC90ZXh0Pgo8L3N2Zz4=">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --orange: #f7931a;
+      --orange-dim: #c0660d;
+      --green: #3fb950;
+      --blue: #58a6ff;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --red: #f85149;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+    header .subtitle { color: var(--muted); font-size: 0.85rem; }
+    header .byline { color: var(--muted); font-size: 0.72rem; margin-top: 2px; }
+    header .byline a { color: var(--orange-dim); text-decoration: none; }
+    header .byline a:hover { color: var(--orange); }
+    footer {
+      text-align: center;
+      padding: 1.5rem 2rem;
+      color: var(--muted);
+      font-size: 0.72rem;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+      line-height: 1.8;
+    }
+    footer a { color: var(--orange-dim); text-decoration: none; }
+    footer a:hover { color: var(--orange); }
+    header .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--red);
+      margin-left: auto;
+    }
+    header .status-dot.online { background: var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+    main { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .stat-label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text); }
+    .stat-value.orange { color: var(--orange); }
+    .stat-value.green  { color: var(--green); }
+    .stat-value.blue   { color: var(--blue); }
+    .stat-sub { color: var(--muted); font-size: 0.78rem; margin-top: 0.3rem; }
+
+    h2 { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { color: var(--muted); text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .address { font-family: monospace; font-size: 0.8rem; color: var(--blue); }
+    .worker  { font-family: monospace; font-size: 0.8rem; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge.green { background: rgba(63,185,80,0.15); color: var(--green); }
+    .badge.orange { background: rgba(247,147,26,0.15); color: var(--orange); }
+
+    .section { margin-bottom: 1.5rem; }
+    .blocks-table td.hash { font-family: monospace; font-size: 0.75rem; color: var(--muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .empty-state { text-align: center; color: var(--muted); padding: 2rem; }
+    .last-update { color: var(--muted); font-size: 0.75rem; text-align: right; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;background:#0d1117;border:1px solid #30363d;border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
+        <span style="position:absolute;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:#34D399;top:8px;left:5px;">S</span>
+        <span style="position:absolute;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:#F97316;top:6px;left:14px;">S</span>
+      </div>
+      <div>
+        <div class="logo">
+          <span style="color:#F97316;">Solo</span><span style="color:#34D399;">Strike</span><span style="color:#F97316;">.io</span><span style="color:#8b949e;font-size:0.85rem;font-weight:400;margin-left:8px;">/ CKPool Solo</span>
+        </div>
+        <div class="subtitle">Bitcoin Solo Mining — Self-Sovereign, Zero Fees</div>
+        <div class="byline">
+          Forked &amp; packaged by <a href="https://solostrike.io" target="_blank">Gil Bechtel · SoloStrike.io</a>
+          &nbsp;·&nbsp;
+          Powered by <a href="https://bitbucket.org/ckolivas/ckpool" target="_blank">CKPool</a> © Con Kolivas (GPLv3)
+        </div>
+      </div>
+    </div>
+    <div class="status-dot" id="statusDot"></div>
+  </header>
+
+  <main>
+    <!-- Stats Grid -->
+    <div class="grid-4">
+      <div class="card">
+        <div class="stat-label">Total Hashrate</div>
+        <div class="stat-value orange" id="totalHashrate">—</div>
+        <div class="stat-sub">across all workers</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Active Workers</div>
+        <div class="stat-value blue" id="totalWorkers">—</div>
+        <div class="stat-sub">connected miners</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Blocks Found</div>
+        <div class="stat-value green" id="blocksFound">—</div>
+        <div class="stat-sub">lifetime total</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Total Shares</div>
+        <div class="stat-value" id="totalShares">—</div>
+        <div class="stat-sub">accepted</div>
+      </div>
+    </div>
+
+    <!-- Workers Table -->
+    <div class="card section">
+      <h2>Workers</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Worker</th>
+            <th>Hashrate (5m)</th>
+            <th>Shares</th>
+            <th>Difficulty</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="workersBody">
+          <tr><td colspan="5" class="empty-state">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card section">
+      <h2>Mining Addresses</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Address</th>
+            <th>Hashrate (5m)</th>
+            <th>Workers</th>
+            <th>Shares</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Blocks Found -->
+    <div class="card section">
+      <h2>Blocks Found 🎉</h2>
+      <table class="blocks-table">
+        <thead>
+          <tr>
+            <th>Height</th>
+            <th>Hash</th>
+            <th>Reward (BTC)</th>
+            <th>Finder</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="blocksBody">
+          <tr><td colspan="5" class="empty-state">No blocks found yet — keep hashing! 🚀</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="last-update">Last updated: <span id="lastUpdate">—</span></div>
+  </main>
+
+  <footer>
+    <strong>CKPool Solo for Umbrel</strong> &nbsp;·&nbsp;
+    Forked &amp; packaged by <a href="https://solostrike.io" target="_blank">Gil Bechtel · SoloStrike.io</a>
+    <br>
+    Powered by <a href="https://bitbucket.org/ckolivas/ckpool" target="_blank">CKPool</a>
+    written by Con Kolivas &amp; Andrew Smith &nbsp;·&nbsp;
+    <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GNU GPLv3</a>
+    &nbsp;·&nbsp; Umbrel packaging MIT Licensed
+    <br style="margin-bottom:6px;">
+    <a href="https://solostrike.io" target="_blank" style="color:var(--orange);font-weight:600;">Support this project at SoloStrike.io</a>
+  </footer>
+
+  <script>
+    function formatHashrate(hps) {
+      if (!hps || hps === 0) return '0 H/s';
+      const h = parseFloat(hps);
+      if (h >= 1e15) return (h/1e15).toFixed(2) + ' PH/s';
+      if (h >= 1e12) return (h/1e12).toFixed(2) + ' TH/s';
+      if (h >= 1e9)  return (h/1e9).toFixed(2)  + ' GH/s';
+      if (h >= 1e6)  return (h/1e6).toFixed(2)  + ' MH/s';
+      if (h >= 1e3)  return (h/1e3).toFixed(2)  + ' KH/s';
+      return h.toFixed(0) + ' H/s';
+    }
+
+    function formatNum(n) {
+      if (n === undefined || n === null) return '—';
+      return Number(n).toLocaleString();
+    }
+
+    async function refresh() {
+      try {
+        const res  = await fetch('/api/summary');
+        const data = await res.json();
+
+        document.getElementById('statusDot').className = 'status-dot online';
+        document.getElementById('totalHashrate').textContent = formatHashrate(data.totalHashrate);
+        document.getElementById('totalWorkers').textContent  = data.totalWorkers ?? '0';
+        document.getElementById('blocksFound').textContent   = data.blocks?.length ?? '0';
+        document.getElementById('totalShares').textContent   =
+          formatNum(data.pool?.accepted ?? data.pool?.shares);
+        document.getElementById('lastUpdate').textContent    =
+          data.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString() : '—';
+
+        // Workers
+        const wb = document.getElementById('workersBody');
+        if (data.workers && data.workers.length) {
+          wb.innerHTML = data.workers.map(w => `
+            <tr>
+              <td class="worker">${w.worker ?? w.workername ?? '—'}</td>
+              <td>${formatHashrate(w.hashrate5m ?? w.hashrate)}</td>
+              <td>${formatNum(w.accepted ?? w.shares)}</td>
+              <td>${formatNum(w.diff ?? w.difficulty)}</td>
+              <td><span class="badge green">Active</span></td>
+            </tr>
+          `).join('');
+        } else {
+          wb.innerHTML = '<tr><td colspan="5" class="empty-state">No workers connected</td></tr>';
+        }
+
+        // Users
+        const ub = document.getElementById('usersBody');
+        if (data.users && data.users.length) {
+          ub.innerHTML = data.users.map(u => `
+            <tr>
+              <td class="address">${(u.address ?? '—').substring(0,20)}...</td>
+              <td>${formatHashrate(u.hashrate5m ?? u.hashrate)}</td>
+              <td>${formatNum(u.workers)}</td>
+              <td>${formatNum(u.accepted ?? u.shares)}</td>
+            </tr>
+          `).join('');
+        } else {
+          ub.innerHTML = '<tr><td colspan="4" class="empty-state">No addresses seen yet</td></tr>';
+        }
+
+        // Blocks
+        const bb = document.getElementById('blocksBody');
+        if (data.blocks && data.blocks.length) {
+          bb.innerHTML = data.blocks.map(b => `
+            <tr>
+              <td>${b.height ?? '—'}</td>
+              <td class="hash">${b.blockhash ?? b.hash ?? '—'}</td>
+              <td>${b.reward ? (b.reward/1e8).toFixed(8) : '—'}</td>
+              <td class="address">${(b.address ?? b.username ?? '—').substring(0,16)}...</td>
+              <td>${b.createdate ? new Date(b.createdate*1000).toLocaleString() : '—'}</td>
+            </tr>
+          `).join('');
+        }
+
+      } catch(e) {
+        document.getElementById('statusDot').className = 'status-dot';
+        console.error('API error:', e);
+      }
+    }
+
+    refresh();
+    setInterval(refresh, 15000);
+  </script>
+</body>
+</html>

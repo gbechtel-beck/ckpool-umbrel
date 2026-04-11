@@ -1,0 +1,64 @@
+version: "3.7"
+
+# ─────────────────────────────────────────────────────
+# CKPool Solo — Umbrel App
+# Requires: bitcoin (Umbrel Bitcoin node)
+# Stratum: port 3333
+# Dashboard: port 4040 (proxied by Umbrel app_proxy)
+# ─────────────────────────────────────────────────────
+
+services:
+
+  # ── Umbrel reverse proxy (required by all Umbrel apps) ──────────────────────
+  app_proxy:
+    environment:
+      APP_HOST: $APP_CKPOOL_SOLO_IP
+      APP_PORT: 4040
+
+  # ── CKPool stratum server ────────────────────────────────────────────────────
+  ckpool:
+    image: ghcr.io/YOUR_GITHUB_USERNAME/ckpool-solo-ckpool:latest
+    container_name: ckpool-solo_ckpool_1
+    restart: unless-stopped
+    environment:
+      # Bitcoin RPC — provided automatically by Umbrel
+      BITCOIN_RPC_URL: "http://$APP_BITCOIN_NODE_IP"
+      BITCOIN_RPC_PORT: "$APP_BITCOIN_RPC_PORT"
+      BITCOIN_RPC_USER: "$APP_BITCOIN_RPC_USER"
+      BITCOIN_RPC_PASS: "$APP_BITCOIN_RPC_PASS"
+      # Stratum config
+      STRATUM_PORT: "3333"
+      POOL_SIG: "/SoloStrike.io/"
+      POOL_FEE: "0"
+      # Difficulty — adjust to match your miners
+      # Nerd Miners: 1000–10000 | ASICs: 100000+
+      MIN_DIFF: "1000"
+      START_DIFF: "1000"
+      MAX_DIFF: "0"
+    volumes:
+      - "${APP_DATA_DIR}/logs:/ckpool/logs"
+    ports:
+      - "3333:3333/tcp"
+    networks:
+      default:
+        ipv4_address: $APP_CKPOOL_SOLO_IP
+
+  # ── Web dashboard ────────────────────────────────────────────────────────────
+  web:
+    image: ghcr.io/YOUR_GITHUB_USERNAME/ckpool-solo-ui:latest
+    container_name: ckpool-solo_web_1
+    restart: unless-stopped
+    environment:
+      CKPOOL_LOG_DIR: "/ckpool/logs"
+      PORT: "4040"
+    volumes:
+      - "${APP_DATA_DIR}/logs:/ckpool/logs:ro"
+    depends_on:
+      - ckpool
+    networks:
+      default:
+        ipv4_address: $APP_CKPOOL_SOLO_WEB_IP
+
+networks:
+  default:
+    name: ckpool-solo_default
