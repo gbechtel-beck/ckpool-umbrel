@@ -1,194 +1,160 @@
-/**
- * CKPool Solo — Umbrel Dashboard Server
- * Reads CKPool log directory structure and serves:
- *   GET /api/pool      — pool-wide stats
- *   GET /api/users     — all user (address) stats
- *   GET /api/workers   — all worker stats
- *   GET /api/blocks    — found blocks
- *   GET /api/status    — health check
- */
-
-const express = require('express');
-const cors    = require('cors');
-const fs      = require('fs-extra');
-const path    = require('path');
-const chokidar = require('chokidar');
+const express = require("express");
+const cors = require("cors");
+const fs = require("fs-extra");
+const path = require("path");
+const http = require("http");
 
 const app = express();
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-const LOG_DIR = process.env.CKPOOL_LOG_DIR || '/ckpool/logs';
-const PORT    = process.env.PORT || 4040;
+const LOG_DIR = process.env.CKPOOL_LOG_DIR || "/ckpool/logs";
+const PORT = process.env.PORT || 4040;
+const BTC_RPC_URL = process.env.BITCOIN_RPC_URL || "http://10.21.21.8";
+const BTC_RPC_PORT = process.env.BITCOIN_RPC_PORT || "8332";
+const BTC_RPC_USER = process.env.BITCOIN_RPC_USER || "umbrel";
+const BTC_RPC_PASS = process.env.BITCOIN_RPC_PASS || "umbrel";
 
-// ─── Cache ───────────────────────────────────────────────────────────────────
-let cache = {
-  pool:    {},
-  users:   {},
-  workers: {},
-  blocks:  [],
-  lastUpdated: null
-};
+let cache = { pool: {}, users: {}, workers: {}, network: {}, lastUpdated: null };
 
-// ─── Log File Readers ─────────────────────────────────────────────────────────
-
-function readJsonFile(filePath) {
-  try {
-    const raw = fs.readFileSync(filePath, 'utf8').trim();
-    // CKPool log files may have multiple JSON objects — take the last valid one
-    const lines = raw.split('\n').filter(l => l.trim().startsWith('{'));
-    if (!lines.length) return null;
-    return JSON.parse(lines[lines.length - 1]);
-  } catch {
-    return null;
-  }
+function readJson(f) {
+  try { return JSON.parse(fs.readFileSync(f, "utf8")); }
+  catch(e) { return null; }
 }
 
-function readPoolStats() {
-  const poolDir = path.join(LOG_DIR, 'pool');
-  if (!fs.existsSync(poolDir)) return {};
-  try {
-    const files = fs.readdirSync(poolDir);
-    let latest = {};
-    for (const f of files) {
-      const data = readJsonFile(path.join(poolDir, f));
-      if (data) Object.assign(latest, data);
-    }
-    return latest;
-  } catch {
-    return {};
-  }
+function parseHR(hr) {
+  if (!hr) return 0;
+  const s = String(hr);
+  const n = parseFloat(s);
+  if (s.indexOf("P") > -1) return n * 1e15;
+  if (s.indexOf("T") > -1) return n * 1e12;
+  if (s.indexOf("G") > -1) return n * 1e9;
+  if (s.indexOf("M") > -1) return n * 1e6;
+  if (s.indexOf("K") > -1) return n * 1e3;
+  return n;
 }
 
-function readUserStats() {
-  const usersDir = path.join(LOG_DIR, 'users');
-  if (!fs.existsSync(usersDir)) return {};
-  const result = {};
-  try {
-    const dirs = fs.readdirSync(usersDir);
-    for (const userDir of dirs) {
-      const userPath = path.join(usersDir, userDir);
-      if (!fs.statSync(userPath).isDirectory()) continue;
-      const files = fs.readdirSync(userPath);
-      let stats = { address: userDir };
-      for (const f of files) {
-        const data = readJsonFile(path.join(userPath, f));
-        if (data) Object.assign(stats, data);
+function rpcCall(method, params) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({ jsonrpc: "1.0", id: method, method, params: params || [] });
+    const auth = Buffer.from(BTC_RPC_USER + ":" + BTC_RPC_PASS).toString("base64");
+    const urlParts = BTC_RPC_URL.replace("http://", "").split(":");
+    const options = {
+      hostname: urlParts[0],
+      port: parseInt(BTC_RPC_PORT),
+      path: "/",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Basic " + auth,
+        "Content-Length": Buffer.byteLength(body)
       }
-      result[userDir] = stats;
-    }
-  } catch {}
-  return result;
-}
-
-function readWorkerStats() {
-  const workersDir = path.join(LOG_DIR, 'workers');
-  if (!fs.existsSync(workersDir)) return {};
-  const result = {};
-  try {
-    const dirs = fs.readdirSync(workersDir);
-    for (const wDir of dirs) {
-      const wPath = path.join(workersDir, wDir);
-      if (!fs.statSync(wPath).isDirectory()) continue;
-      const files = fs.readdirSync(wPath);
-      let stats = { worker: wDir };
-      for (const f of files) {
-        const data = readJsonFile(path.join(wPath, f));
-        if (data) Object.assign(stats, data);
-      }
-      result[wDir] = stats;
-    }
-  } catch {}
-  return result;
-}
-
-function readBlocks() {
-  const blocksFile = path.join(LOG_DIR, 'pool', 'blocks.log');
-  if (!fs.existsSync(blocksFile)) return [];
-  try {
-    const lines = fs.readFileSync(blocksFile, 'utf8')
-      .split('\n')
-      .filter(l => l.trim())
-      .map(l => {
-        try { return JSON.parse(l); } catch { return null; }
-      })
-      .filter(Boolean)
-      .reverse(); // newest first
-    return lines.slice(0, 50); // last 50 blocks
-  } catch {
-    return [];
-  }
-}
-
-// ─── Refresh Cache ────────────────────────────────────────────────────────────
-
-function refreshCache() {
-  cache.pool    = readPoolStats();
-  cache.users   = readUserStats();
-  cache.workers = readWorkerStats();
-  cache.blocks  = readBlocks();
-  cache.lastUpdated = new Date().toISOString();
-}
-
-// Initial load + watch for changes
-refreshCache();
-setInterval(refreshCache, 10000); // refresh every 10s
-
-chokidar.watch(LOG_DIR, { ignoreInitial: true, depth: 3 })
-  .on('change', () => refreshCache())
-  .on('add',    () => refreshCache());
-
-// ─── API Routes ───────────────────────────────────────────────────────────────
-
-app.get('/api/status', (req, res) => {
-  res.json({
-    status: 'ok',
-    logDir: LOG_DIR,
-    lastUpdated: cache.lastUpdated,
-    poolRunning: Object.keys(cache.pool).length > 0
+    };
+    const req = http.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => data += chunk);
+      res.on("end", () => {
+        try { resolve(JSON.parse(data).result); }
+        catch(e) { reject(e); }
+      });
+    });
+    req.on("error", reject);
+    req.setTimeout(5000, () => { req.destroy(); reject(new Error("timeout")); });
+    req.write(body);
+    req.end();
   });
-});
+}
 
-app.get('/api/pool', (req, res) => {
-  res.json(cache.pool);
-});
+async function fetchNetwork() {
+  try {
+    const [chainInfo, miningInfo] = await Promise.all([
+      rpcCall("getblockchaininfo"),
+      rpcCall("getmininginfo")
+    ]);
+    const blocks = chainInfo.blocks;
+    const difficulty = chainInfo.difficulty;
+    const networkhashps = miningInfo.networkhashps;
+    const blocksInEpoch = blocks % 2016;
+    const blocksUntilRetarget = 2016 - blocksInEpoch;
+    const retargetBlock = blocks + blocksUntilRetarget;
+    const estRetargetSeconds = blocksUntilRetarget * 10 * 60;
+    cache.network = {
+      blocks,
+      difficulty,
+      networkhashps,
+      blocksInEpoch,
+      blocksUntilRetarget,
+      retargetBlock,
+      estRetargetSeconds
+    };
+  } catch(e) {
+    console.error("RPC error:", e.message);
+  }
+}
 
-app.get('/api/users', (req, res) => {
-  res.json(cache.users);
-});
+function refreshLogs() {
+  try {
+    const pd = path.join(LOG_DIR, "pool");
+    if (fs.existsSync(pd)) {
+      let p = {};
+      for (const f of fs.readdirSync(pd)) {
+        const d = readJson(path.join(pd, f));
+        if (d) Object.assign(p, d);
+      }
+      cache.pool = p;
+    }
+    const ud = path.join(LOG_DIR, "users");
+    cache.users = {};
+    cache.workers = {};
+    if (fs.existsSync(ud)) {
+      for (const file of fs.readdirSync(ud)) {
+        const fp = path.join(ud, file);
+        if (fs.statSync(fp).isFile()) {
+          const d = readJson(fp);
+          if (d) {
+            cache.users[file] = { address: file, ...d };
+            if (d.worker) {
+              for (const w of d.worker) cache.workers[w.workername] = w;
+            }
+          }
+        }
+      }
+    }
+    cache.lastUpdated = new Date().toISOString();
+  } catch(e) { console.error(e); }
+}
 
-app.get('/api/workers', (req, res) => {
-  res.json(cache.workers);
-});
+refreshLogs();
+fetchNetwork();
+setInterval(refreshLogs, 10000);
+setInterval(fetchNetwork, 60000);
 
-app.get('/api/blocks', (req, res) => {
-  res.json(cache.blocks);
-});
-
-// Combined summary endpoint — used by the dashboard
-app.get('/api/summary', (req, res) => {
-  const users   = Object.values(cache.users);
+app.get("/api/summary", (req, res) => {
+  const users = Object.values(cache.users);
   const workers = Object.values(cache.workers);
-
-  const totalHashrate = workers.reduce((acc, w) => {
-    return acc + (parseFloat(w.hashrate5m) || 0);
-  }, 0);
-
+  const totalHashrate = workers.reduce((a, w) => a + parseHR(w.hashrate5m || w.hashrate1m), 0);
+  const totalShares = users.reduce((a, u) => a + (u.shares || 0), 0);
   res.json({
-    pool:         cache.pool,
+    pool: cache.pool,
     users,
     workers,
-    blocks:       cache.blocks,
+    network: cache.network,
     totalWorkers: workers.length,
-    totalUsers:   users.length,
+    totalUsers: users.length,
     totalHashrate,
-    lastUpdated:  cache.lastUpdated
+    totalShares,
+    blocks: [],
+    lastUpdated: cache.lastUpdated
   });
 });
 
-// ─── Start ────────────────────────────────────────────────────────────────────
+app.get("/api/pool", (req, res) => res.json(cache.pool));
+app.get("/api/users", (req, res) => res.json(cache.users));
+app.get("/api/workers", (req, res) => res.json(cache.workers));
+app.get("/api/network", (req, res) => res.json(cache.network));
+app.get("/api/status", (req, res) => res.json({ status: "ok", lastUpdated: cache.lastUpdated }));
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`CKPool Solo Dashboard running on port ${PORT}`);
-  console.log(`Reading logs from: ${LOG_DIR}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("CKPool Solo Dashboard running on port " + PORT);
+  console.log("Reading logs from: " + LOG_DIR);
 });

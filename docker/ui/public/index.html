@@ -4,316 +4,462 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SoloStrike.io — CKPool Solo</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzBkMTExNyIvPgogIDx0ZXh0IHg9IjExIiB5PSIyMyIgZm9udC1mYW1pbHk9IklCTSBQbGV4IE1vbm8sbW9ub3NwYWNlIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjIyIiBmaWxsPSIjMzREMzk5Ij5TPC90ZXh0PgogIDx0ZXh0IHg9IjE3IiB5PSIyMSIgZm9udC1mYW1pbHk9IklCTSBQbGV4IE1vbm8sbW9ub3NwYWNlIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjIyIiBmaWxsPSIjRjk3MzE2Ij5TPC90ZXh0Pgo8L3N2Zz4=">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0d1117;
-      --card: #161b22;
-      --border: #30363d;
-      --orange: #f7931a;
-      --orange-dim: #c0660d;
-      --green: #3fb950;
-      --blue: #58a6ff;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --red: #f85149;
+      --bg: #0d1117; --card: #161b22; --card2: #1c2128; --border: #30363d;
+      --orange: #F97316; --orange-dim: #c0660d; --green: #34D399; --blue: #58a6ff;
+      --text: #e6edf3; --muted: #8b949e; --red: #f85149; --yellow: #f0c040; --purple: #bc8cff;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      min-height: 100vh;
-    }
-    header {
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    header .logo {
-      font-size: 1.4rem;
-      font-weight: 700;
-      font-family: 'IBM Plex Mono', monospace;
-      letter-spacing: -0.5px;
-      line-height: 1.2;
-    }
-    header .subtitle { color: var(--muted); font-size: 0.85rem; }
-    header .byline { color: var(--muted); font-size: 0.72rem; margin-top: 2px; }
-    header .byline a { color: var(--orange-dim); text-decoration: none; }
-    header .byline a:hover { color: var(--orange); }
-    footer {
-      text-align: center;
-      padding: 1.5rem 2rem;
-      color: var(--muted);
-      font-size: 0.72rem;
-      border-top: 1px solid var(--border);
-      margin-top: 1rem;
-      line-height: 1.8;
-    }
-    footer a { color: var(--orange-dim); text-decoration: none; }
-    footer a:hover { color: var(--orange); }
-    header .status-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--red);
-      margin-left: auto;
-    }
-    header .status-dot.online { background: var(--green); animation: pulse 2s infinite; }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
-    }
-    main { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-    }
-    .stat-label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
-    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text); }
-    .stat-value.orange { color: var(--orange); }
-    .stat-value.green  { color: var(--green); }
-    .stat-value.blue   { color: var(--blue); }
-    .stat-sub { color: var(--muted); font-size: 0.78rem; margin-top: 0.3rem; }
+    body { background: var(--bg); color: var(--text); font-family: "IBM Plex Mono", monospace; min-height: 100vh; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
-    h2 { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; }
+    header { background: var(--card); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; gap: 14px; }
+    .logo-icon { width: 40px; height: 40px; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; position: relative; flex-shrink: 0; }
+    .logo-icon .sg { position: absolute; font-weight: 700; font-size: 19px; color: var(--green); top: 8px; left: 5px; }
+    .logo-icon .so { position: absolute; font-weight: 700; font-size: 19px; color: var(--orange); top: 6px; left: 14px; }
+    .logo-name { font-size: 1.4rem; font-weight: 700; }
+    .logo-name .solo { color: var(--orange); }
+    .logo-name .strike { color: var(--green); }
+    .logo-name .dotio { color: var(--orange); }
+    .logo-name .sub { color: var(--muted); font-size: 0.85rem; font-weight: 400; margin-left: 8px; }
+    .byline { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .byline a { color: var(--orange-dim); }
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); margin-left: auto; flex-shrink: 0; }
+    .status-dot.online { background: var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
-    th { color: var(--muted); text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; }
-    td { padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--border); }
+    main { padding: 1.5rem 2rem; max-width: 1500px; margin: 0 auto; }
+    .section { margin-bottom: 1.5rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+
+    .stat-label { color: var(--muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; line-height: 1.1; }
+    .stat-sub { color: var(--muted); font-size: 0.7rem; margin-top: 0.35rem; }
+    .orange { color: var(--orange); } .green { color: var(--green); } .blue { color: var(--blue); }
+    .yellow { color: var(--yellow); } .purple { color: var(--purple); } .red { color: var(--red); }
+
+    h2 { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th { color: var(--muted); text-align: left; padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.68rem; text-transform: uppercase; font-weight: 500; }
+    td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: rgba(255,255,255,0.02); }
-    .address { font-family: monospace; font-size: 0.8rem; color: var(--blue); }
-    .worker  { font-family: monospace; font-size: 0.8rem; }
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
-    .badge.green { background: rgba(63,185,80,0.15); color: var(--green); }
-    .badge.orange { background: rgba(247,147,26,0.15); color: var(--orange); }
-
-    .section { margin-bottom: 1.5rem; }
-    .blocks-table td.hash { font-family: monospace; font-size: 0.75rem; color: var(--muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mono { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; }
     .empty-state { text-align: center; color: var(--muted); padding: 2rem; }
-    .last-update { color: var(--muted); font-size: 0.75rem; text-align: right; margin-top: 1rem; }
+
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
+    .badge-green { background: rgba(52,211,153,0.15); color: var(--green); }
+    .badge-yellow { background: rgba(240,192,64,0.15); color: var(--yellow); }
+
+    /* Info grid for stats panels */
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .info-item { border-left: 2px solid var(--border); padding-left: 0.75rem; }
+    .info-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem; }
+    .info-val { font-size: 1rem; font-weight: 700; }
+    .info-desc { font-size: 0.65rem; color: var(--muted); margin-top: 0.25rem; line-height: 1.5; }
+
+    /* Progress bar */
+    .progress-wrap { margin-top: 0.5rem; }
+    .progress-bar-bg { background: var(--border); border-radius: 4px; height: 5px; overflow: hidden; }
+    .progress-bar-fill { height: 5px; border-radius: 4px; background: linear-gradient(90deg, var(--green), var(--orange)); transition: width 1s ease; }
+
+    /* Hashrate timeline */
+    .hr-timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; }
+    .hr-cell { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem; text-align: center; }
+    .hr-cell .hr-period { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; margin-bottom: 0.2rem; }
+    .hr-cell .hr-val { font-size: 0.9rem; font-weight: 700; color: var(--orange); }
+
+    /* Explainer */
+    .explainer { background: rgba(88,166,255,0.04); border: 1px solid rgba(88,166,255,0.15); border-radius: 10px; padding: 1.25rem; }
+    .explainer h2 { color: var(--blue); margin-bottom: 0.75rem; }
+    .explainer p { font-size: 0.76rem; color: var(--muted); line-height: 1.75; margin-bottom: 0.6rem; }
+    .explainer p:last-child { margin-bottom: 0; }
+    .explainer strong { color: var(--text); }
+
+    /* Odds box */
+    .odds-box { background: rgba(188,140,255,0.05); border: 1px solid rgba(188,140,255,0.2); border-radius: 10px; padding: 1.25rem; }
+    .odds-box h2 { color: var(--purple); margin-bottom: 0.75rem; }
+    .odds-stat { font-size: 0.76rem; color: var(--muted); line-height: 1.75; }
+    .odds-stat strong { color: var(--purple); }
+    .odds-stat .odds-big { font-size: 1.1rem; font-weight: 700; color: var(--purple); }
+
+    /* Retarget */
+    .retarget-bar { background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; margin: 0.6rem 0; }
+    .retarget-fill { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--blue), var(--purple)); transition: width 1s ease; }
+
+    .last-update { color: var(--muted); font-size: 0.68rem; text-align: right; margin-top: 1rem; }
+    footer { text-align: center; padding: 1.5rem 2rem; color: var(--muted); font-size: 0.7rem; border-top: 1px solid var(--border); margin-top: 1rem; line-height: 1.9; }
+    footer a { color: var(--orange-dim); }
   </style>
 </head>
 <body>
-  <header>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div style="width:40px;height:40px;background:#0d1117;border:1px solid #30363d;border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
-        <span style="position:absolute;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:#34D399;top:8px;left:5px;">S</span>
-        <span style="position:absolute;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:#F97316;top:6px;left:14px;">S</span>
-      </div>
-      <div>
-        <div class="logo">
-          <span style="color:#F97316;">Solo</span><span style="color:#34D399;">Strike</span><span style="color:#F97316;">.io</span><span style="color:#8b949e;font-size:0.85rem;font-weight:400;margin-left:8px;">/ CKPool Solo</span>
+<header>
+  <div class="logo-icon"><span class="sg">S</span><span class="so">S</span></div>
+  <div>
+    <div class="logo-name"><span class="solo">Solo</span><span class="strike">Strike</span><span class="dotio">.io</span><span class="sub">/ CKPool Solo</span></div>
+    <div class="byline">Forked &amp; packaged by <a href="https://solostrike.io" target="_blank">Gil Bechtel &middot; SoloStrike.io</a> &nbsp;&middot;&nbsp; Powered by <a href="https://bitbucket.org/ckolivas/ckpool" target="_blank">CKPool</a> &copy; Con Kolivas (GPLv3)</div>
+  </div>
+  <div class="status-dot" id="statusDot"></div>
+</header>
+
+<main>
+  <!-- Top stats row -->
+  <div class="grid-4 section">
+    <div class="card">
+      <div class="stat-label">Total Hashrate (5m)</div>
+      <div class="stat-value orange" id="totalHashrate">--</div>
+      <div class="stat-sub">across all workers</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">Active Workers</div>
+      <div class="stat-value blue" id="totalWorkers">--</div>
+      <div class="stat-sub">connected miners</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">Blocks Found</div>
+      <div class="stat-value green" id="blocksFound">0</div>
+      <div class="stat-sub">lifetime total</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">Est. Time to Block</div>
+      <div class="stat-value yellow" id="estTime">--</div>
+      <div class="stat-sub" id="estTimeSub">avg at current hashrate</div>
+    </div>
+  </div>
+
+  <!-- Hashrate timeline -->
+  <div class="card section">
+    <h2>Hashrate History</h2>
+    <div class="hr-timeline">
+      <div class="hr-cell"><div class="hr-period">1 min</div><div class="hr-val" id="hr1m">--</div></div>
+      <div class="hr-cell"><div class="hr-period">5 min</div><div class="hr-val" id="hr5m">--</div></div>
+      <div class="hr-cell"><div class="hr-period">1 hour</div><div class="hr-val" id="hr1hr">--</div></div>
+      <div class="hr-cell"><div class="hr-period">1 day</div><div class="hr-val" id="hr1d">--</div></div>
+      <div class="hr-cell"><div class="hr-period">7 days</div><div class="hr-val" id="hr7d">--</div></div>
+      <div class="hr-cell"><div class="hr-period">Last Share</div><div class="hr-val" style="font-size:0.72rem;color:var(--green)" id="lastShare">--</div></div>
+    </div>
+  </div>
+
+  <!-- Mining stats & luck -->
+  <div class="card section">
+    <h2>Mining Stats &amp; Luck</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Best Share (Session)</div>
+        <div class="info-val green" id="bestShare">--</div>
+        <div class="progress-wrap">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="bestShareBar" style="width:0%"></div></div>
         </div>
-        <div class="subtitle">Bitcoin Solo Mining — Self-Sovereign, Zero Fees</div>
-        <div class="byline">
-          Forked &amp; packaged by <a href="https://solostrike.io" target="_blank">Gil Bechtel · SoloStrike.io</a>
-          &nbsp;·&nbsp;
-          Powered by <a href="https://bitbucket.org/ckolivas/ckpool" target="_blank">CKPool</a> © Con Kolivas (GPLv3)
-        </div>
+        <div class="info-desc" id="bestSharePct">-- of network difficulty</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Best Share Ever</div>
+        <div class="info-val" id="bestEver">--</div>
+        <div class="info-desc">All-time highest difficulty share for this address</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Network Difficulty</div>
+        <div class="info-val blue" id="networkDiff">--</div>
+        <div class="info-desc">Live from Bitcoin node. A valid block requires a share at or above this value.</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Difficulty-Adj Shares</div>
+        <div class="info-val" id="totalShares">--</div>
+        <div class="info-desc">Total work submitted, weighted by share difficulty.</div>
       </div>
     </div>
-    <div class="status-dot" id="statusDot"></div>
-  </header>
+  </div>
 
-  <main>
-    <!-- Stats Grid -->
-    <div class="grid-4">
-      <div class="card">
-        <div class="stat-label">Total Hashrate</div>
-        <div class="stat-value orange" id="totalHashrate">—</div>
-        <div class="stat-sub">across all workers</div>
+  <!-- Network retarget -->
+  <div class="card section">
+    <h2>Difficulty Retarget</h2>
+    <div class="grid-3">
+      <div class="info-item">
+        <div class="info-label">Current Block Height</div>
+        <div class="info-val blue" id="blockHeight">--</div>
+        <div class="info-desc">Live from your Bitcoin node</div>
       </div>
-      <div class="card">
-        <div class="stat-label">Active Workers</div>
-        <div class="stat-value blue" id="totalWorkers">—</div>
-        <div class="stat-sub">connected miners</div>
+      <div class="info-item">
+        <div class="info-label">Blocks Until Retarget</div>
+        <div class="info-val yellow" id="blocksUntilRetarget">--</div>
+        <div class="info-desc" id="retargetBlock">Next retarget at block --</div>
       </div>
-      <div class="card">
-        <div class="stat-label">Blocks Found</div>
-        <div class="stat-value green" id="blocksFound">—</div>
-        <div class="stat-sub">lifetime total</div>
-      </div>
-      <div class="card">
-        <div class="stat-label">Total Shares</div>
-        <div class="stat-value" id="totalShares">—</div>
-        <div class="stat-sub">accepted</div>
+      <div class="info-item">
+        <div class="info-label">Est. Retarget In</div>
+        <div class="info-val" id="retargetTime">--</div>
+        <div class="info-desc">Based on 10 min avg block time</div>
       </div>
     </div>
-
-    <!-- Workers Table -->
-    <div class="card section">
-      <h2>Workers</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Worker</th>
-            <th>Hashrate (5m)</th>
-            <th>Shares</th>
-            <th>Difficulty</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="workersBody">
-          <tr><td colspan="5" class="empty-state">Loading...</td></tr>
-        </tbody>
-      </table>
+    <div class="retarget-bar" style="margin-top:1rem">
+      <div class="retarget-fill" id="retargetBar" style="width:0%"></div>
     </div>
+    <div style="font-size:0.65rem;color:var(--muted);margin-top:0.3rem" id="retargetPct">-- blocks into current epoch (-- of 2016)</div>
+  </div>
 
-    <!-- Users Table -->
-    <div class="card section">
-      <h2>Mining Addresses</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Address</th>
-            <th>Hashrate (5m)</th>
-            <th>Workers</th>
-            <th>Shares</th>
-          </tr>
-        </thead>
-        <tbody id="usersBody">
-          <tr><td colspan="4" class="empty-state">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- Pool network odds -->
+  <div class="odds-box section">
+    <h2>Pool Network Odds</h2>
+    <div class="odds-stat" id="oddsText">Loading network data...</div>
+  </div>
 
-    <!-- Blocks Found -->
-    <div class="card section">
-      <h2>Blocks Found 🎉</h2>
-      <table class="blocks-table">
-        <thead>
-          <tr>
-            <th>Height</th>
-            <th>Hash</th>
-            <th>Reward (BTC)</th>
-            <th>Finder</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody id="blocksBody">
-          <tr><td colspan="5" class="empty-state">No blocks found yet — keep hashing! 🚀</td></tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- Dynamic explainer -->
+  <div class="explainer section">
+    <h2>How Shares &amp; Luck Work</h2>
+    <p><strong>What is a share?</strong> Every time your miner finds a hash below the pool difficulty target, it submits a share as proof of work. Shares do not win Bitcoin directly — they prove your miner is genuinely hashing.</p>
+    <p><strong>Why are share counts large?</strong> CKPool counts <strong>difficulty-weighted shares</strong>. A share at difficulty 1,000 counts as 1,000. At 10,000 it counts as 10,000. This gives a more accurate picture of total work than raw submission counts.</p>
+    <p><strong>What wins a block?</strong> A block is found when a share hash falls below the <strong>network difficulty target</strong>. Your best share shows how close you have gotten. Every hash has an equal independent chance regardless of history.</p>
+    <p id="estExplainer"><strong>Estimated time</strong> is calculated as: <strong>Network Difficulty &divide; Your Hashrate &times; 2&sup3;&sup2;</strong>. Loading live stats...</p>
+  </div>
 
-    <div class="last-update">Last updated: <span id="lastUpdate">—</span></div>
-  </main>
+  <!-- Workers -->
+  <div class="card section">
+    <h2>Workers</h2>
+    <table>
+      <thead><tr><th>Worker</th><th>Hashrate (5m)</th><th>Shares</th><th>Best Share</th><th>Status</th></tr></thead>
+      <tbody id="workersBody"><tr><td colspan="5" class="empty-state">Loading...</td></tr></tbody>
+    </table>
+  </div>
 
-  <footer>
-    <strong>CKPool Solo for Umbrel</strong> &nbsp;·&nbsp;
-    Forked &amp; packaged by <a href="https://solostrike.io" target="_blank">Gil Bechtel · SoloStrike.io</a>
-    <br>
-    Powered by <a href="https://bitbucket.org/ckolivas/ckpool" target="_blank">CKPool</a>
-    written by Con Kolivas &amp; Andrew Smith &nbsp;·&nbsp;
-    <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GNU GPLv3</a>
-    &nbsp;·&nbsp; Umbrel packaging MIT Licensed
-    <br style="margin-bottom:6px;">
-    <a href="https://solostrike.io" target="_blank" style="color:var(--orange);font-weight:600;">Support this project at SoloStrike.io</a>
-  </footer>
+  <!-- Mining addresses -->
+  <div class="card section">
+    <h2>Mining Addresses</h2>
+    <table>
+      <thead><tr><th>Address</th><th>Hashrate (5m)</th><th>Workers</th><th>Shares</th></tr></thead>
+      <tbody id="usersBody"><tr><td colspan="4" class="empty-state">Loading...</td></tr></tbody>
+    </table>
+  </div>
 
-  <script>
-    function formatHashrate(hps) {
-      if (!hps || hps === 0) return '0 H/s';
-      const h = parseFloat(hps);
-      if (h >= 1e15) return (h/1e15).toFixed(2) + ' PH/s';
-      if (h >= 1e12) return (h/1e12).toFixed(2) + ' TH/s';
-      if (h >= 1e9)  return (h/1e9).toFixed(2)  + ' GH/s';
-      if (h >= 1e6)  return (h/1e6).toFixed(2)  + ' MH/s';
-      if (h >= 1e3)  return (h/1e3).toFixed(2)  + ' KH/s';
-      return h.toFixed(0) + ' H/s';
-    }
+  <!-- Blocks found -->
+  <div class="card section">
+    <h2>Blocks Found &#127881;</h2>
+    <table>
+      <thead><tr><th>Height</th><th>Hash</th><th>Reward (BTC)</th><th>Finder</th><th>Time</th></tr></thead>
+      <tbody id="blocksBody"><tr><td colspan="5" class="empty-state">No blocks found yet &mdash; keep hashing! &#128640;</td></tr></tbody>
+    </table>
+  </div>
 
-    function formatNum(n) {
-      if (n === undefined || n === null) return '—';
-      return Number(n).toLocaleString();
-    }
+  <div class="last-update">Last updated: <span id="lastUpdate">--</span></div>
+</main>
 
-    async function refresh() {
-      try {
-        const res  = await fetch('/api/summary');
-        const data = await res.json();
+<footer>
+  <strong>CKPool Solo for Umbrel</strong> &nbsp;&middot;&nbsp;
+  Forked &amp; packaged by <a href="https://solostrike.io" target="_blank">Gil Bechtel &middot; SoloStrike.io</a><br>
+  Powered by <a href="https://bitbucket.org/ckolivas/ckpool" target="_blank">CKPool</a> by Con Kolivas &amp; Andrew Smith &nbsp;&middot;&nbsp; GNU GPLv3<br>
+  <a href="https://solostrike.io" target="_blank" style="color:var(--orange);font-weight:600;">Support this project at SoloStrike.io</a>
+</footer>
 
-        document.getElementById('statusDot').className = 'status-dot online';
-        document.getElementById('totalHashrate').textContent = formatHashrate(data.totalHashrate);
-        document.getElementById('totalWorkers').textContent  = data.totalWorkers ?? '0';
-        document.getElementById('blocksFound').textContent   = data.blocks?.length ?? '0';
-        document.getElementById('totalShares').textContent   =
-          formatNum(data.pool?.accepted ?? data.pool?.shares);
-        document.getElementById('lastUpdate').textContent    =
-          data.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString() : '—';
+<script>
+  function parseHR(hr) {
+    if (!hr) return 0;
+    const s = String(hr);
+    const n = parseFloat(s);
+    if (s.indexOf("P") > -1) return n * 1e15;
+    if (s.indexOf("T") > -1) return n * 1e12;
+    if (s.indexOf("G") > -1) return n * 1e9;
+    if (s.indexOf("M") > -1) return n * 1e6;
+    if (s.indexOf("K") > -1) return n * 1e3;
+    return n;
+  }
 
-        // Workers
-        const wb = document.getElementById('workersBody');
-        if (data.workers && data.workers.length) {
-          wb.innerHTML = data.workers.map(w => `
-            <tr>
-              <td class="worker">${w.worker ?? w.workername ?? '—'}</td>
-              <td>${formatHashrate(w.hashrate5m ?? w.hashrate)}</td>
-              <td>${formatNum(w.accepted ?? w.shares)}</td>
-              <td>${formatNum(w.diff ?? w.difficulty)}</td>
-              <td><span class="badge green">Active</span></td>
-            </tr>
-          `).join('');
-        } else {
-          wb.innerHTML = '<tr><td colspan="5" class="empty-state">No workers connected</td></tr>';
-        }
+  function fmtHR(hr) {
+    const h = typeof hr === "number" ? hr : parseHR(hr);
+    if (!h) return "0 H/s";
+    if (h >= 1e18) return (h/1e18).toFixed(2) + " EH/s";
+    if (h >= 1e15) return (h/1e15).toFixed(2) + " PH/s";
+    if (h >= 1e12) return (h/1e12).toFixed(2) + " TH/s";
+    if (h >= 1e9)  return (h/1e9).toFixed(2)  + " GH/s";
+    if (h >= 1e6)  return (h/1e6).toFixed(2)  + " MH/s";
+    if (h >= 1e3)  return (h/1e3).toFixed(2)  + " KH/s";
+    return h.toFixed(0) + " H/s";
+  }
 
-        // Users
-        const ub = document.getElementById('usersBody');
-        if (data.users && data.users.length) {
-          ub.innerHTML = data.users.map(u => `
-            <tr>
-              <td class="address">${(u.address ?? '—').substring(0,20)}...</td>
-              <td>${formatHashrate(u.hashrate5m ?? u.hashrate)}</td>
-              <td>${formatNum(u.workers)}</td>
-              <td>${formatNum(u.accepted ?? u.shares)}</td>
-            </tr>
-          `).join('');
-        } else {
-          ub.innerHTML = '<tr><td colspan="4" class="empty-state">No addresses seen yet</td></tr>';
-        }
+  function fmtNum(n) {
+    if (n == null) return "--";
+    return Number(n).toLocaleString();
+  }
 
-        // Blocks
-        const bb = document.getElementById('blocksBody');
-        if (data.blocks && data.blocks.length) {
-          bb.innerHTML = data.blocks.map(b => `
-            <tr>
-              <td>${b.height ?? '—'}</td>
-              <td class="hash">${b.blockhash ?? b.hash ?? '—'}</td>
-              <td>${b.reward ? (b.reward/1e8).toFixed(8) : '—'}</td>
-              <td class="address">${(b.address ?? b.username ?? '—').substring(0,16)}...</td>
-              <td>${b.createdate ? new Date(b.createdate*1000).toLocaleString() : '—'}</td>
-            </tr>
-          `).join('');
-        }
+  function fmtDiff(n) {
+    if (!n) return "--";
+    if (n >= 1e15) return (n/1e15).toFixed(2) + "P";
+    if (n >= 1e12) return (n/1e12).toFixed(2) + "T";
+    if (n >= 1e9)  return (n/1e9).toFixed(2)  + "G";
+    if (n >= 1e6)  return (n/1e6).toFixed(2)  + "M";
+    if (n >= 1e3)  return (n/1e3).toFixed(2)  + "K";
+    return Number(n).toLocaleString();
+  }
 
-      } catch(e) {
-        document.getElementById('statusDot').className = 'status-dot';
-        console.error('API error:', e);
+  function fmtTime(seconds) {
+    if (!seconds || seconds <= 0) return "--";
+    const mins = seconds / 60;
+    const hours = mins / 60;
+    const days = hours / 24;
+    const years = days / 365.25;
+    if (years > 1000) return Math.round(years).toLocaleString() + " years";
+    if (years > 1) return years.toFixed(1) + " years";
+    if (days > 1)  return days.toFixed(1) + " days";
+    if (hours > 1) return hours.toFixed(1) + " hours";
+    return Math.round(mins) + " min";
+  }
+
+  function fmtTimeAgo(unixTs) {
+    if (!unixTs) return "--";
+    const diff = Math.floor(Date.now()/1000) - unixTs;
+    if (diff < 60) return diff + "s ago";
+    if (diff < 3600) return Math.floor(diff/60) + "m ago";
+    if (diff < 86400) return Math.floor(diff/3600) + "h ago";
+    return Math.floor(diff/86400) + "d ago";
+  }
+
+  function fmtPct(pct) {
+    if (pct < 0.000001) return pct.toExponential(3) + "%";
+    if (pct < 0.001) return pct.toFixed(7) + "%";
+    return pct.toFixed(4) + "%";
+  }
+
+  async function refresh() {
+    try {
+      const res = await fetch("/api/summary");
+      const data = await res.json();
+      const net = data.network || {};
+      const users = data.users || [];
+      const workers = data.workers || [];
+
+      document.getElementById("statusDot").className = "status-dot online";
+      document.getElementById("totalHashrate").textContent = fmtHR(data.totalHashrate);
+      document.getElementById("totalWorkers").textContent = data.totalWorkers || 0;
+      document.getElementById("blocksFound").textContent = (data.blocks || []).length;
+      document.getElementById("totalShares").textContent = fmtNum(data.totalShares);
+      document.getElementById("lastUpdate").textContent = data.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString() : "--";
+
+      // Hashrate timeline from first user (aggregate)
+      if (users.length > 0) {
+        const u = users[0];
+        document.getElementById("hr1m").textContent  = u.hashrate1m  || "--";
+        document.getElementById("hr5m").textContent  = u.hashrate5m  || "--";
+        document.getElementById("hr1hr").textContent = u.hashrate1hr || "--";
+        document.getElementById("hr1d").textContent  = u.hashrate1d  || "--";
+        document.getElementById("hr7d").textContent  = u.hashrate7d  || "--";
+        document.getElementById("lastShare").textContent = fmtTimeAgo(u.lastshare);
       }
-    }
 
-    refresh();
-    setInterval(refresh, 15000);
-  </script>
+      // Network difficulty
+      const netDiff = net.difficulty || 138966872071213;
+      document.getElementById("networkDiff").textContent = fmtDiff(netDiff);
+
+      // Block height & retarget
+      if (net.blocks) {
+        document.getElementById("blockHeight").textContent = fmtNum(net.blocks);
+        document.getElementById("blocksUntilRetarget").textContent = fmtNum(net.blocksUntilRetarget);
+        document.getElementById("retargetBlock").textContent = "Next retarget at block " + fmtNum(net.retargetBlock);
+        document.getElementById("retargetTime").textContent = fmtTime(net.estRetargetSeconds);
+        const epochPct = (net.blocksInEpoch / 2016) * 100;
+        document.getElementById("retargetBar").style.width = epochPct.toFixed(1) + "%";
+        document.getElementById("retargetPct").textContent =
+          fmtNum(net.blocksInEpoch) + " blocks into current epoch (" + epochPct.toFixed(1) + "% of 2016)";
+      }
+
+      // Est time to block
+      const netHashps = net.networkhashps || 0;
+      if (data.totalHashrate > 0 && netDiff > 0) {
+        const estSec = (netDiff * Math.pow(2, 32)) / data.totalHashrate;
+        document.getElementById("estTime").textContent = fmtTime(estSec);
+
+        // Dynamic explainer
+        const hrStr = fmtHR(data.totalHashrate);
+        const diffStr = fmtDiff(netDiff);
+        const timeStr = fmtTime(estSec);
+        document.getElementById("estExplainer").innerHTML =
+          "<strong>Estimated time</strong> is calculated as: <strong>Network Difficulty &divide; Your Hashrate &times; 2&sup3;&sup2;</strong>. " +
+          "At " + hrStr + " against " + diffStr + " difficulty, the average time between blocks is roughly <strong>" + timeStr + "</strong> " +
+          "&mdash; but any single hash could win. Solo mining is a lottery where every ticket has the same odds.";
+      }
+
+      // Best share
+      let bestShare = 0, bestEver = 0;
+      for (const u of users) {
+        if ((u.bestshare || 0) > bestShare) bestShare = u.bestshare;
+        if ((u.bestever || 0) > bestEver) bestEver = u.bestever;
+      }
+      document.getElementById("bestShare").textContent = fmtDiff(bestShare);
+      document.getElementById("bestEver").textContent  = fmtDiff(bestEver);
+      const pct = bestShare > 0 ? Math.min((bestShare / netDiff) * 100, 100) : 0;
+      document.getElementById("bestShareBar").style.width = Math.max(pct * 1000, pct > 0 ? 0.5 : 0) + "%";
+      document.getElementById("bestSharePct").textContent = fmtPct(pct) + " of network difficulty";
+
+      // Pool network odds
+      if (netHashps > 0 && data.totalHashrate > 0) {
+        const poolPct = (data.totalHashrate / netHashps) * 100;
+        const estBlockSec = netHashps / data.totalHashrate * 600;
+        const estBlockDays = estBlockSec / 86400;
+        const estBlockYears = estBlockDays / 365.25;
+        const netHRStr = fmtHR(netHashps);
+        const poolHRStr = fmtHR(data.totalHashrate);
+        document.getElementById("oddsText").innerHTML =
+          "At <strong class='orange'>" + poolHRStr + "</strong> pool hashrate vs <strong class='blue'>" + netHRStr + "</strong> network, " +
+          "your pool controls <strong class='purple'>" + poolPct.toExponential(4) + "%</strong> of global hash. " +
+          "Statistically, expect one block every <strong class='yellow'>" +
+          (estBlockYears > 1 ? estBlockYears.toFixed(1) + " years" : estBlockDays.toFixed(0) + " days") +
+          " (" + Math.round(estBlockDays).toLocaleString() + " days)</strong>. " +
+          "Any individual block can succeed at any time regardless of expected wait.";
+      } else {
+        document.getElementById("oddsText").textContent = "Waiting for network data...";
+      }
+
+      // Workers table
+      const wb = document.getElementById("workersBody");
+      if (workers.length) {
+        wb.innerHTML = workers.map(w => {
+          const name = w.workername || "--";
+          return "<tr><td class='mono'>" + name + "</td><td>" + fmtHR(w.hashrate5m || w.hashrate1m) +
+            "</td><td>" + fmtNum(w.shares) + "</td><td>" + fmtDiff(w.bestshare) +
+            "</td><td><span class='badge badge-green'>Active</span></td></tr>";
+        }).join("");
+      } else {
+        wb.innerHTML = "<tr><td colspan='5' class='empty-state'>No workers connected</td></tr>";
+      }
+
+      // Users table
+      const ub = document.getElementById("usersBody");
+      if (users.length) {
+        ub.innerHTML = users.map(u => {
+          const addr = u.address || "--";
+          const short = addr.substring(0, 20) + "...";
+          const link = "<a href='https://mempool.space/address/" + addr + "' target='_blank'>" + short + "</a>";
+          return "<tr><td class='mono'>" + link + "</td><td>" + fmtHR(u.hashrate5m || u.hashrate1m) +
+            "</td><td>" + fmtNum(u.workers) + "</td><td>" + fmtNum(u.shares) + "</td></tr>";
+        }).join("");
+      } else {
+        ub.innerHTML = "<tr><td colspan='4' class='empty-state'>No addresses seen yet</td></tr>";
+      }
+
+      // Blocks
+      const bb = document.getElementById("blocksBody");
+      if (data.blocks && data.blocks.length) {
+        bb.innerHTML = data.blocks.map(b => {
+          const addr = b.address || b.username || "--";
+          return "<tr><td>" + (b.height || "--") + "</td><td class='mono' style='font-size:0.65rem'>" +
+            (b.blockhash || b.hash || "--") + "</td><td>" +
+            (b.reward ? (b.reward/1e8).toFixed(8) : "--") + "</td><td class='mono'>" +
+            addr.substring(0,16) + "...</td><td>" +
+            (b.createdate ? new Date(b.createdate*1000).toLocaleString() : "--") + "</td></tr>";
+        }).join("");
+      }
+
+    } catch(e) {
+      document.getElementById("statusDot").className = "status-dot";
+      console.error("API error:", e);
+    }
+  }
+
+  refresh();
+  setInterval(refresh, 15000);
+</script>
 </body>
 </html>
