@@ -1,465 +1,845 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoloStrike.io — CKPool Solo</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0d1117; --card: #161b22; --card2: #1c2128; --border: #30363d;
-      --orange: #F97316; --orange-dim: #c0660d; --green: #34D399; --blue: #58a6ff;
-      --text: #e6edf3; --muted: #8b949e; --red: #f85149; --yellow: #f0c040; --purple: #bc8cff;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: "IBM Plex Mono", monospace; min-height: 100vh; }
-    a { color: var(--blue); text-decoration: none; }
-    a:hover { text-decoration: underline; }
+<meta charset="utf-8">
+<title>CKPool Solo — SoloStrike.io</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#080d08;--bg1:#0b110b;--bg2:#0f160f;--bg3:#142014;
+  --border:#1a2d1a;--bhi:#274027;--shadow:rgba(0,0,0,.55);
+  --green:#00e676;--glo:rgba(0,230,118,.07);--gmid:rgba(0,230,118,.22);--gdim:#173d1f;
+  --orange:#ff6d00;--olo:rgba(255,109,0,.09);--omid:rgba(255,109,0,.25);
+  --gold:#ffd600;--golo:rgba(255,214,0,.09);
+  --blue:#40c4ff;--blo:rgba(64,196,255,.07);
+  --red:#ff5252;--rlo:rgba(255,82,82,.09);
+  --text:#b9deba;--tsec:#5f8f65;--tdim:#365438;--tfaint:#1f3320;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;}
+body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.018) 3px,rgba(0,0,0,.018) 4px);pointer-events:none;z-index:9000;}
+a{color:var(--green);text-decoration:none;}a:hover{text-decoration:underline;}
+button{cursor:pointer;font-family:var(--mono);}
 
-    header { background: var(--card); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; gap: 14px; }
-    .logo-icon { width: 40px; height: 40px; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; position: relative; flex-shrink: 0; }
-    .logo-icon .sg { position: absolute; font-weight: 700; font-size: 19px; color: var(--green); top: 8px; left: 5px; }
-    .logo-icon .so { position: absolute; font-weight: 700; font-size: 19px; color: var(--orange); top: 6px; left: 14px; }
-    .logo-name { font-size: 1.4rem; font-weight: 700; }
-    .logo-name .solo { color: var(--orange); }
-    .logo-name .strike { color: var(--green); }
-    .logo-name .dotio { color: var(--orange); }
-    .logo-name .sub { color: var(--muted); font-size: 0.85rem; font-weight: 400; margin-left: 8px; }
-    .byline { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-    .byline a { color: var(--orange-dim); }
-    .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); margin-left: auto; flex-shrink: 0; }
-    .status-dot.online { background: var(--green); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+/* TOPBAR */
+#topbar{position:fixed;top:0;left:0;right:0;height:46px;background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:1000;box-shadow:0 1px 10px var(--shadow);}
+#tbl{display:flex;align-items:center;gap:12px;}
+.logo{font-size:.92rem;font-weight:700;letter-spacing:.09em;color:var(--green);text-shadow:0 0 12px rgba(0,230,118,.3);}
+.logo b{color:var(--orange);}
+.logo-tag{font-size:.5rem;color:var(--tdim);letter-spacing:.2em;text-transform:uppercase;border-left:1px solid var(--border);padding-left:10px;}
+#tb-ticks{display:flex;align-items:center;}
+.tk{display:flex;flex-direction:column;align-items:flex-end;padding:0 10px;border-right:1px solid var(--border);height:46px;justify-content:center;}
+.tk-l{font-size:.46rem;color:var(--tdim);letter-spacing:.18em;text-transform:uppercase;margin-bottom:1px;}
+.tk-v{font-size:.7rem;font-weight:600;color:var(--text);}
+.tk-v.g{color:var(--green);}.tk-v.o{color:var(--orange);}.tk-v.au{color:var(--gold);}.tk-v.b{color:var(--blue);}
+.tk-v.fu{animation:fu .75s ease-out;}.tk-v.fd{animation:fd .75s ease-out;}
+@keyframes fu{0%{color:#fff;text-shadow:0 0 10px var(--green);}100%{text-shadow:none;}}
+@keyframes fd{0%{color:var(--red);}100%{}}
+#tbr{display:flex;align-items:center;gap:0;}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:pulse 2.2s ease-in-out infinite;margin:0 11px;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 5px var(--green);}50%{opacity:.25;box-shadow:none;}}
+#last-upd{font-size:.46rem;color:var(--tdim);letter-spacing:.1em;margin-right:9px;}
+.btn-s{background:none;border:1px solid var(--border);color:var(--tsec);font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;transition:all .2s;}
+.btn-s:hover{border-color:var(--orange);color:var(--orange);}
 
-    main { padding: 1.5rem 2rem; max-width: 1500px; margin: 0 auto; }
-    .section { margin-bottom: 1.5rem; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+/* LAYOUT */
+#shell{padding-top:46px;}
+#grid{max-width:1620px;margin:0 auto;padding:10px 10px 36px;display:grid;grid-template-columns:repeat(12,1fr);gap:8px;}
 
-    .stat-label { color: var(--muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
-    .stat-value { font-size: 1.8rem; font-weight: 700; line-height: 1.1; }
-    .stat-sub { color: var(--muted); font-size: 0.7rem; margin-top: 0.35rem; }
-    .orange { color: var(--orange); } .green { color: var(--green); } .blue { color: var(--blue); }
-    .yellow { color: var(--yellow); } .purple { color: var(--purple); } .red { color: var(--red); }
+/* PANEL */
+.panel{background:var(--bg1);border:1px solid var(--border);}
+.panel:hover{border-color:var(--bhi);}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-bottom:1px solid var(--border);background:var(--bg2);}
+.pt{font-size:.53rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--tsec);}
+.pb{font-size:.46rem;letter-spacing:.1em;padding:1px 5px;border:1px solid;}
+.pb.g{color:var(--green);border-color:var(--gmid);}
+.pb.o{color:var(--orange);border-color:var(--omid);}
+.pb.au{color:var(--gold);border-color:rgba(255,214,0,.28);}
+.pb.b{color:var(--blue);border-color:rgba(64,196,255,.22);}
+.pb.r{color:var(--red);border-color:rgba(255,82,82,.28);}
+.pbody{padding:12px;}
 
-    h2 { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; }
+/* GRID */
+.g-full{grid-column:1/-1;}
+.g-chart{grid-column:1/9;}.g-odds{grid-column:9/-1;}
+.g-hrrows{grid-column:1/5;}.g-luck{grid-column:5/9;}.g-retarget{grid-column:9/-1;}
+.g-workers{grid-column:1/-1;}
+.g-addrs{grid-column:1/7;}.g-blocks{grid-column:7/-1;}
+.g-fees{grid-column:1/5;}.g-scores{grid-column:5/9;}.g-donate{grid-column:9/-1;}
+@media(max-width:1000px){.g-chart,.g-odds,.g-hrrows,.g-luck,.g-retarget,.g-workers,.g-addrs,.g-blocks,.g-fees,.g-scores,.g-donate{grid-column:1/-1;}}
 
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    th { color: var(--muted); text-align: left; padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.68rem; text-transform: uppercase; font-weight: 500; }
-    td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(255,255,255,0.02); }
-    .mono { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; }
-    .empty-state { text-align: center; color: var(--muted); padding: 2rem; }
+/* STAT STRIP */
+.stat-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);}
+@media(max-width:1100px){.stat-strip{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:560px){.stat-strip{grid-template-columns:repeat(2,1fr);}}
+.sc{padding:10px 13px;border-right:1px solid var(--border);background:var(--bg1);position:relative;overflow:hidden;transition:background .12s;}
+.sc:last-child{border-right:none;}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;opacity:0;transition:opacity .18s;}
+.sc:hover{background:var(--bg2);}.sc:hover::after{opacity:1;}
+.sc.co::after{background:var(--orange);}.sc.cg::after{background:var(--green);}
+.sc.ca::after{background:var(--gold);}.sc.cb::after{background:var(--blue);}
+.sc-l{font-size:.48rem;color:var(--tsec);letter-spacing:.16em;text-transform:uppercase;margin-bottom:5px;}
+.sc-v{font-size:1.2rem;font-weight:700;line-height:1;color:var(--orange);}
+.sc-v.g{color:var(--green);}.sc-v.au{color:var(--gold);}.sc-v.b{color:var(--blue);}.sc-v.w{color:var(--text);}
+.sc-u{font-size:.47rem;color:var(--tdim);margin-top:2px;}
 
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
-    .badge-green { background: rgba(52,211,153,0.15); color: var(--green); }
-    .badge-yellow { background: rgba(240,192,64,0.15); color: var(--yellow); }
+/* CHART */
+.ctabs{display:flex;padding:0 12px;border-bottom:1px solid var(--border);}
+.ctab{font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;color:var(--tdim);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .15s;user-select:none;}
+.ctab.active{color:var(--green);border-color:var(--green);}
+.ctab:hover:not(.active){color:var(--tsec);}
+.cpane{display:none;padding:12px;}.cpane.active{display:block;}
+.cwrap{position:relative;height:190px;}
 
-    /* Info grid for stats panels */
-    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
-    .info-item { border-left: 2px solid var(--border); padding-left: 0.75rem; }
-    .info-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem; }
-    .info-val { font-size: 1rem; font-weight: 700; }
-    .info-desc { font-size: 0.65rem; color: var(--muted); margin-top: 0.25rem; line-height: 1.5; }
+/* MINI CELLS */
+.mc-row{display:grid;gap:6px;margin-top:10px;}
+.mc-row.c5{grid-template-columns:repeat(5,1fr);}
+.mc-row.c3{grid-template-columns:repeat(3,1fr);}
+.mc-row.c4{grid-template-columns:repeat(4,1fr);}
+.mc{background:var(--bg2);border:1px solid var(--border);padding:8px 10px;}
+.mc-l{font-size:.48rem;color:var(--tdim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
+.mc-v{font-size:.85rem;font-weight:600;}
+.mc-v.g{color:var(--green);}.mc-v.o{color:var(--orange);}.mc-v.au{color:var(--gold);}.mc-v.b{color:var(--blue);}
 
-    /* Progress bar */
-    .progress-wrap { margin-top: 0.5rem; }
-    .progress-bar-bg { background: var(--border); border-radius: 4px; height: 5px; overflow: hidden; }
-    .progress-bar-fill { height: 5px; border-radius: 4px; background: linear-gradient(90deg, var(--green), var(--orange)); transition: width 1s ease; }
+/* HR BARS */
+.hr-row{display:grid;grid-template-columns:68px 1fr auto;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.035);gap:8px;}
+.hr-row:last-child{border-bottom:none;}
+.hr-l{font-size:.5rem;color:var(--tsec);letter-spacing:.08em;text-transform:uppercase;}
+.hr-track{height:3px;background:var(--border);overflow:hidden;border-radius:2px;}
+.hr-fill{height:100%;background:linear-gradient(90deg,var(--gdim),var(--green));border-radius:2px;transition:width .5s ease;}
+.hr-val{font-size:.72rem;font-weight:600;color:var(--green);white-space:nowrap;}
+.hr-val.dim{color:var(--tsec);}
 
-    /* Hashrate timeline */
-    .hr-timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; }
-    .hr-cell { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem; text-align: center; }
-    .hr-cell .hr-period { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; margin-bottom: 0.2rem; }
-    .hr-cell .hr-val { font-size: 0.9rem; font-weight: 700; color: var(--orange); }
+/* SHARE RATE */
+.sctr{display:flex;align-items:center;gap:5px;}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 1.6s ease-in-out infinite;}
+.srate{font-size:.64rem;color:var(--green);font-weight:600;}
+.sunit{font-size:.48rem;color:var(--tsec);}
 
-    /* Explainer */
-    .explainer { background: rgba(88,166,255,0.04); border: 1px solid rgba(88,166,255,0.15); border-radius: 10px; padding: 1.25rem; }
-    .explainer h2 { color: var(--blue); margin-bottom: 0.75rem; }
-    .explainer p { font-size: 0.76rem; color: var(--muted); line-height: 1.75; margin-bottom: 0.6rem; }
-    .explainer p:last-child { margin-bottom: 0; }
-    .explainer strong { color: var(--text); }
+/* ODDS */
+.odds-hero{font-size:1.65rem;font-weight:700;color:var(--orange);line-height:1;margin-bottom:3px;text-shadow:0 0 14px var(--olo);}
+.odds-sub{font-size:.52rem;color:var(--tsec);letter-spacing:.1em;margin-bottom:11px;}
+.odds-note{font-size:.56rem;color:var(--tdim);line-height:1.65;margin-top:10px;padding-top:9px;border-top:1px solid var(--border);}
+.odds-note strong{color:var(--tsec);}
 
-    /* Odds box */
-    .odds-box { background: rgba(188,140,255,0.05); border: 1px solid rgba(188,140,255,0.2); border-radius: 10px; padding: 1.25rem; }
-    .odds-box h2 { color: var(--purple); margin-bottom: 0.75rem; }
-    .odds-stat { font-size: 0.76rem; color: var(--muted); line-height: 1.75; }
-    .odds-stat strong { color: var(--purple); }
-    .odds-stat .odds-big { font-size: 1.1rem; font-weight: 700; color: var(--purple); }
+/* STAT ROWS */
+.sr{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.035);}
+.sr:last-child{border-bottom:none;}
+.sk{font-size:.5rem;color:var(--tsec);letter-spacing:.07em;text-transform:uppercase;}
+.sv{font-size:.76rem;font-weight:600;color:var(--text);}
+.sv.g{color:var(--green);}.sv.o{color:var(--orange);}.sv.au{color:var(--gold);}.sv.b{color:var(--blue);}
+.lbar-wrap{margin-top:10px;padding-top:9px;border-top:1px solid var(--border);}
+.lbar-meta{font-size:.48rem;color:var(--tsec);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;display:flex;justify-content:space-between;}
+.lbar-track{height:5px;background:var(--border);overflow:hidden;border-radius:3px;}
+.lbar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
 
-    /* Retarget */
-    .retarget-bar { background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; margin: 0.6rem 0; }
-    .retarget-fill { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--blue), var(--purple)); transition: width 1s ease; }
+/* RETARGET */
+.rt-big{font-size:1.85rem;font-weight:700;color:var(--gold);line-height:1;text-shadow:0 0 12px var(--golo);}
+.rt-sub{font-size:.5rem;color:var(--tsec);letter-spacing:.12em;margin-bottom:9px;}
+.rt-row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.035);}
+.rt-row:last-child{border-bottom:none;}
+.rt-k{font-size:.49rem;color:var(--tsec);letter-spacing:.07em;text-transform:uppercase;}
+.rt-v{font-size:.74rem;font-weight:600;}
+.rt-v.g{color:var(--green);}.rt-v.r{color:var(--red);}.rt-v.au{color:var(--gold);}.rt-v.b{color:var(--blue);}
+.ep-meta{font-size:.48rem;color:var(--tsec);letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between;margin-top:9px;margin-bottom:4px;}
+.ep-track{height:5px;background:var(--border);overflow:hidden;border-radius:3px;}
+.ep-fill{height:100%;background:linear-gradient(90deg,var(--gdim),var(--gold));border-radius:3px;transition:width .8s ease;}
 
-    .last-update { color: var(--muted); font-size: 0.68rem; text-align: right; margin-top: 1rem; }
-    footer { text-align: center; padding: 1.5rem 2rem; color: var(--muted); font-size: 0.7rem; border-top: 1px solid var(--border); margin-top: 1rem; line-height: 1.9; }
-    footer a { color: var(--orange-dim); }
-  </style>
+/* WORKERS */
+.wk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:7px;}
+.wk{border:1px solid var(--border);padding:9px 11px;position:relative;overflow:hidden;background:var(--bg2);transition:border-color .18s;}
+.wk:hover{border-color:var(--bhi);}
+.wk::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;}
+.wk.active::before{background:var(--green);}
+.wk.stale::before{background:var(--gold);}
+.wk.offline::before{background:var(--red);}
+.wk-name{font-size:.66rem;font-weight:600;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wk-addr{font-size:.5rem;color:var(--tdim);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wk-hr{font-size:.82rem;font-weight:700;color:var(--green);}
+.wk-hr span{font-size:.52rem;color:var(--tsec);}
+.wk-row2{display:flex;justify-content:space-between;margin-top:3px;}
+.wkv{font-size:.52rem;}.wkv .k{color:var(--tdim);margin-right:2px;}.wkv .v{color:var(--tsec);}
+.wkv .v.g{color:var(--green);}.wkv .v.o{color:var(--orange);}
+.wk-bar{margin-top:5px;height:2px;background:var(--border);overflow:hidden;border-radius:1px;}
+.wk-bar-f{height:100%;background:var(--green);border-radius:1px;}
+.wk-st{font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;margin-top:4px;}
+.wk-st.active{color:var(--green);}.wk-st.stale{color:var(--gold);}.wk-st.offline{color:var(--red);}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:.76rem;}
+.dt th{font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:var(--tdim);padding:0 8px 6px 0;text-align:left;border-bottom:1px solid var(--border);font-weight:500;}
+.dt td{padding:5px 8px 5px 0;border-bottom:1px solid rgba(255,255,255,.035);color:var(--text);vertical-align:middle;}
+.dt tr:last-child td{border-bottom:none;}
+.dt tr:hover td{background:var(--bg2);}
+.dt .mono{font-family:var(--mono);font-size:.62rem;color:var(--blue);}
+.dt .g{color:var(--green);font-weight:600;}.dt .o{color:var(--orange);font-weight:600;}
+.dt .au{color:var(--gold);}.dt .dim{color:var(--tsec);font-size:.62rem;}
+.tag{font-size:.48rem;letter-spacing:.07em;padding:1px 5px;border:1px solid;}
+.tag.g{color:var(--green);border-color:var(--gmid);}
+.tag.b{color:var(--blue);border-color:rgba(64,196,255,.22);}
+.tag.o{color:var(--orange);border-color:var(--omid);}
+.tag.au{color:var(--gold);border-color:rgba(255,214,0,.28);}
+
+/* FEES */
+.fee-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.fee-cell{background:var(--bg2);border:1px solid var(--border);padding:8px 10px;text-align:center;}
+.fee-l{font-size:.48rem;color:var(--tdim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.fee-v{font-size:1.05rem;font-weight:700;}
+.fee-v.sl{color:var(--green);}.fee-v.md{color:var(--gold);}.fee-v.fs{color:var(--orange);}
+.fee-u{font-size:.46rem;color:var(--tdim);margin-top:1px;}
+.mbar-wrap{margin-top:9px;}
+.mbar-meta{font-size:.48rem;color:var(--tsec);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;display:flex;justify-content:space-between;}
+.mbar-track{height:6px;background:var(--border);overflow:hidden;border-radius:3px;}
+.mbar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold),var(--orange));border-radius:3px;transition:width .6s ease;}
+.fee-note{font-size:.52rem;color:var(--tdim);margin-top:8px;line-height:1.6;padding-top:8px;border-top:1px solid var(--border);}
+
+/* DONATE */
+.don-addr{font-size:.58rem;color:var(--orange);word-break:break-all;line-height:1.5;background:var(--bg2);border:1px solid var(--border);padding:8px 10px;margin-bottom:8px;cursor:pointer;transition:border-color .2s;}
+.don-addr:hover{border-color:var(--orange);}
+.don-note{font-size:.52rem;color:var(--tdim);line-height:1.65;text-align:center;}
+.up-badge{display:inline-flex;align-items:center;gap:4px;font-size:.52rem;color:var(--green);background:var(--glo);border:1px solid var(--gmid);padding:2px 6px;}
+
+/* MISC */
+.empty{text-align:center;padding:20px;font-size:.58rem;color:var(--tdim);letter-spacing:.06em;}
+.spin{display:inline-block;width:9px;height:9px;border:1.5px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite;margin-right:5px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#footer{text-align:center;padding:11px;font-size:.48rem;color:var(--tdim);letter-spacing:.1em;text-transform:uppercase;border-top:1px solid var(--border);margin-top:4px;}
+#footer a{color:var(--green);}
+
+/* BLOCK FOUND */
+#bf-ov{display:none;position:fixed;inset:0;z-index:9500;pointer-events:none;}
+#bf-ov.active{display:block;}
+#bf-cv{position:absolute;inset:0;width:100%;height:100%;}
+#bf-mod{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg1);border:2px solid var(--green);padding:30px 46px;text-align:center;pointer-events:all;box-shadow:0 0 50px rgba(0,230,118,.3);}
+#bf-mod h1{font-size:1.8rem;font-weight:700;color:var(--green);letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px;text-shadow:0 0 16px rgba(0,230,118,.5);}
+.bfs{font-size:.66rem;color:var(--tsec);letter-spacing:.1em;text-transform:uppercase;margin-bottom:13px;}
+.bfh{font-size:1.05rem;color:var(--orange);font-weight:700;margin-bottom:16px;}
+#bf-close{background:var(--green);color:#000;font-family:var(--mono);font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:none;padding:7px 20px;}
+#bf-close:hover{background:#00ff7f;}
+</style>
 </head>
 <body>
-<header>
-  <div class="logo-icon"><span class="sg">S</span><span class="so">S</span></div>
-  <div>
-    <div class="logo-name"><span class="solo">Solo</span><span class="strike">Strike</span><span class="dotio">.io</span><span class="sub">/ CKPool Solo</span></div>
-    <div class="byline">Forked &amp; packaged by <a href="https://solostrike.io" target="_blank">Gil Bechtel &middot; SoloStrike.io</a> &nbsp;&middot;&nbsp; Powered by <a href="https://bitbucket.org/ckolivas/ckpool" target="_blank">CKPool</a> &copy; Con Kolivas (GPLv3)</div>
+<div id="bf-ov">
+  <canvas id="bf-cv"></canvas>
+  <div id="bf-mod">
+    <h1>⚡ BLOCK FOUND ⚡</h1>
+    <div class="bfs">SoloStrike.io has solved a block</div>
+    <div class="bfh" id="bf-ht">—</div>
+    <button id="bf-close" onclick="dismissBlock()">Acknowledge</button>
   </div>
-  <div class="status-dot" id="statusDot"></div>
+</div>
+<header id="topbar">
+  <div id="tbl">
+    <span class="logo">Solo<b>Strike</b>.io</span>
+    <span class="logo-tag">CKPool Solo · Umbrel</span>
+  </div>
+  <div id="tb-ticks">
+    <div class="tk"><span class="tk-l">Pool HR</span><span class="tk-v g" id="tk-hr">—</span></div>
+    <div class="tk"><span class="tk-l">Workers</span><span class="tk-v w" id="tk-wk">—</span></div>
+    <div class="tk"><span class="tk-l">Network</span><span class="tk-v b" id="tk-net">—</span></div>
+    <div class="tk"><span class="tk-l">Difficulty</span><span class="tk-v au" id="tk-diff">—</span></div>
+    <div class="tk"><span class="tk-l">Block #</span><span class="tk-v w" id="tk-blk">—</span></div>
+    <div class="tk"><span class="tk-l">BTC/USD</span><span class="tk-v o" id="tk-btc">—</span></div>
+  </div>
+  <div id="tbr">
+    <span id="last-upd">—</span>
+    <div class="pulse"></div>
+    <button class="btn-s" onclick="manualRefresh()">Refresh</button>
+  </div>
 </header>
+<div id="shell"><div id="grid">
 
-<main>
-  <!-- Top stats row -->
-  <div class="grid-4 section">
-    <div class="card">
-      <div class="stat-label">Total Hashrate (5m)</div>
-      <div class="stat-value orange" id="totalHashrate">--</div>
-      <div class="stat-sub">across all workers</div>
-    </div>
-    <div class="card">
-      <div class="stat-label">Active Workers</div>
-      <div class="stat-value blue" id="totalWorkers">--</div>
-      <div class="stat-sub">connected miners</div>
-    </div>
-    <div class="card">
-      <div class="stat-label">Blocks Found</div>
-      <div class="stat-value green" id="blocksFound">0</div>
-      <div class="stat-sub">lifetime total</div>
-    </div>
-    <div class="card">
-      <div class="stat-label">Est. Time to Block</div>
-      <div class="stat-value yellow" id="estTime">--</div>
-      <div class="stat-sub" id="estTimeSub">avg at current hashrate</div>
+<div class="stat-strip">
+  <div class="sc co"><div class="sc-l">Total Hashrate (5m)</div><div class="sc-v" id="sc-hr">—</div><div class="sc-u" id="sc-hru">loading…</div></div>
+  <div class="sc cg"><div class="sc-l">Active Workers</div><div class="sc-v g" id="sc-wk">—</div><div class="sc-u">connected miners</div></div>
+  <div class="sc cb"><div class="sc-l">Network Hashrate</div><div class="sc-v b" id="sc-net">—</div><div class="sc-u">EH/s · global SHA-256</div></div>
+  <div class="sc ca"><div class="sc-l">Network Difficulty</div><div class="sc-v au" id="sc-diff">—</div><div class="sc-u">current epoch</div></div>
+  <div class="sc cg"><div class="sc-l">Blocks Found</div><div class="sc-v g" id="sc-blks">0</div><div class="sc-u">lifetime total</div></div>
+  <div class="sc co"><div class="sc-l">Est. Time to Block</div><div class="sc-v" id="sc-ttb">—</div><div class="sc-u">avg at current hashrate</div></div>
+  <div class="sc cg"><div class="sc-l">BTC Block Value</div><div class="sc-v g" id="sc-bval">—</div><div class="sc-u">3.125 BTC at spot price</div></div>
+</div>
+
+<div class="panel g-chart">
+  <div class="ph">
+    <span class="pt">Hashrate History</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="sctr"><div class="sdot"></div><span class="srate" id="srate">—</span><span class="sunit">shares/sec</span></div>
+      <span class="pb g" id="chart-ts">LIVE</span>
     </div>
   </div>
-
-  <!-- Hashrate timeline -->
-  <div class="card section">
-    <h2>Hashrate History</h2>
-    <div class="hr-timeline">
-      <div class="hr-cell"><div class="hr-period">1 min</div><div class="hr-val" id="hr1m">--</div></div>
-      <div class="hr-cell"><div class="hr-period">5 min</div><div class="hr-val" id="hr5m">--</div></div>
-      <div class="hr-cell"><div class="hr-period">1 hour</div><div class="hr-val" id="hr1hr">--</div></div>
-      <div class="hr-cell"><div class="hr-period">1 day</div><div class="hr-val" id="hr1d">--</div></div>
-      <div class="hr-cell"><div class="hr-period">7 days</div><div class="hr-val" id="hr7d">--</div></div>
-      <div class="hr-cell"><div class="hr-period">Last Share</div><div class="hr-val" style="font-size:0.72rem;color:var(--green)" id="lastShare">--</div></div>
+  <div class="ctabs">
+    <div class="ctab active" onclick="switchTab('24h',this)">24H</div>
+    <div class="ctab" onclick="switchTab('var',this)">Variance</div>
+  </div>
+  <div id="pane-24h" class="cpane active">
+    <div class="cwrap"><canvas id="hr-chart"></canvas></div>
+    <div class="mc-row c5">
+      <div class="mc"><div class="mc-l">1 Min</div><div class="mc-v g" id="hr1m">—</div></div>
+      <div class="mc"><div class="mc-l">5 Min</div><div class="mc-v g" id="hr5m">—</div></div>
+      <div class="mc"><div class="mc-l">1 Hour</div><div class="mc-v g" id="hr1h">—</div></div>
+      <div class="mc"><div class="mc-l">1 Day</div><div class="mc-v g" id="hr1d">—</div></div>
+      <div class="mc"><div class="mc-l">7 Days</div><div class="mc-v au" id="hr7d">—</div></div>
     </div>
   </div>
-
-  <!-- Mining stats & luck -->
-  <div class="card section">
-    <h2>Mining Stats &amp; Luck</h2>
-    <div class="info-grid">
-      <div class="info-item">
-        <div class="info-label">Best Share (Session)</div>
-        <div class="info-val green" id="bestShare">--</div>
-        <div class="progress-wrap">
-          <div class="progress-bar-bg"><div class="progress-bar-fill" id="bestShareBar" style="width:0%"></div></div>
-        </div>
-        <div class="info-desc" id="bestSharePct">-- of network difficulty</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Best Share Ever</div>
-        <div class="info-val" id="bestEver">--</div>
-        <div class="info-desc">All-time highest difficulty share for this address</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Network Difficulty</div>
-        <div class="info-val blue" id="networkDiff">--</div>
-        <div class="info-desc">Live from Bitcoin node. A valid block requires a share at or above this value.</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Difficulty-Adj Shares</div>
-        <div class="info-val" id="totalShares">--</div>
-        <div class="info-desc">Total work submitted, weighted by share difficulty.</div>
-      </div>
+  <div id="pane-var" class="cpane">
+    <div class="cwrap"><canvas id="var-chart"></canvas></div>
+    <div class="mc-row c3">
+      <div class="mc"><div class="mc-l">24h Average</div><div class="mc-v b" id="var-avg">—</div></div>
+      <div class="mc"><div class="mc-l">24h Peak</div><div class="mc-v g" id="var-peak">—</div></div>
+      <div class="mc"><div class="mc-l">Variance</div><div class="mc-v o" id="var-pct">—</div></div>
     </div>
   </div>
+</div>
 
-  <!-- Network retarget -->
-  <div class="card section">
-    <h2>Difficulty Retarget</h2>
-    <div class="grid-3">
-      <div class="info-item">
-        <div class="info-label">Current Block Height</div>
-        <div class="info-val blue" id="blockHeight">--</div>
-        <div class="info-desc">Live from your Bitcoin node</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Blocks Until Retarget</div>
-        <div class="info-val yellow" id="blocksUntilRetarget">--</div>
-        <div class="info-desc" id="retargetBlock">Next retarget at block --</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Est. Retarget In</div>
-        <div class="info-val" id="retargetTime">--</div>
-        <div class="info-desc">Based on 10 min avg block time</div>
-      </div>
+<div class="panel g-odds">
+  <div class="ph"><span class="pt">Pool Network Odds</span><span class="pb b">CALCULATED</span></div>
+  <div class="pbody">
+    <div class="odds-hero" id="odds-ratio">—</div>
+    <div class="odds-sub">chance per block attempt</div>
+    <div class="mc-row c4" style="margin-bottom:0;">
+      <div class="mc"><div class="mc-l">Expected Block</div><div class="mc-v au" id="odds-time">—</div></div>
+      <div class="mc"><div class="mc-l">Pool Share</div><div class="mc-v b" id="odds-share">—</div></div>
+      <div class="mc"><div class="mc-l">Reward BTC</div><div class="mc-v g">3.125 BTC</div></div>
+      <div class="mc"><div class="mc-l">Reward USD</div><div class="mc-v o" id="odds-usd">—</div></div>
     </div>
-    <div class="retarget-bar" style="margin-top:1rem">
-      <div class="retarget-fill" id="retargetBar" style="width:0%"></div>
+    <div class="odds-note" id="odds-note">Loading…</div>
+  </div>
+</div>
+
+<div class="panel g-hrrows">
+  <div class="ph"><span class="pt">Hashrate — All Windows</span><span class="pb g">LIVE</span></div>
+  <div class="pbody">
+    <div id="hrrows-body"><div class="empty"><span class="spin"></span>Loading…</div></div>
+    <div style="margin-top:9px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:.48rem;color:var(--tdim);letter-spacing:.12em;text-transform:uppercase;">Last Share</span>
+      <span style="font-size:.68rem;color:var(--green);font-weight:600;" id="last-share">—</span>
     </div>
-    <div style="font-size:0.65rem;color:var(--muted);margin-top:0.3rem" id="retargetPct">-- blocks into current epoch (-- of 2016)</div>
   </div>
+</div>
 
-  <!-- Pool network odds -->
-  <div class="odds-box section">
-    <h2>Pool Network Odds</h2>
-    <div class="odds-stat" id="oddsText">Loading network data...</div>
+<div class="panel g-luck">
+  <div class="ph"><span class="pt">Mining Stats &amp; Luck</span><span class="pb o">SESSION</span></div>
+  <div class="pbody">
+    <div class="sr"><span class="sk">Best Share (Session)</span><span class="sv o" id="best-sess">—</span></div>
+    <div class="sr"><span class="sk">Best Share (All Time)</span><span class="sv g" id="best-ever">—</span></div>
+    <div class="sr"><span class="sk">Network Difficulty</span><span class="sv au" id="net-diff-disp">—</span></div>
+    <div class="sr"><span class="sk">Best ÷ Network Diff</span><span class="sv b" id="best-pct">—</span></div>
+    <div class="sr"><span class="sk">Total Shares (Session)</span><span class="sv" id="tot-sh">—</span></div>
+    <div class="sr"><span class="sk">Total Users</span><span class="sv" id="tot-users">—</span></div>
+    <div class="sr"><span class="sk">Pool Uptime</span><span id="uptime-span"></span></div>
+    <div class="lbar-wrap">
+      <div class="lbar-meta"><span>Best Share vs Network Difficulty</span><span id="luck-lbl">—</span></div>
+      <div class="lbar-track"><div class="lbar-fill" id="luck-bar" style="width:0%"></div></div>
+    </div>
   </div>
+</div>
 
-  <!-- Dynamic explainer -->
-  <div class="explainer section">
-    <h2>How Shares &amp; Luck Work</h2>
-    <p><strong>What is a share?</strong> Every time your miner finds a hash below the pool difficulty target, it submits a share as proof of work. Shares do not win Bitcoin directly — they prove your miner is genuinely hashing.</p>
-    <p><strong>Why are share counts large?</strong> CKPool counts <strong>difficulty-weighted shares</strong>. A share at difficulty 1,000 counts as 1,000. At 10,000 it counts as 10,000. This gives a more accurate picture of total work than raw submission counts.</p>
-    <p><strong>What wins a block?</strong> A block is found when a share hash falls below the <strong>network difficulty target</strong>. Your best share shows how close you have gotten. Every hash has an equal independent chance regardless of history.</p>
-    <p id="estExplainer"><strong>Estimated time</strong> is calculated as: <strong>Network Difficulty &divide; Your Hashrate &times; 2&sup3;&sup2;</strong>. Loading live stats...</p>
+<div class="panel g-retarget">
+  <div class="ph"><span class="pt">Difficulty Retarget</span><span class="pb au">EPOCH</span></div>
+  <div class="pbody">
+    <div class="rt-big" id="rt-blks">—</div>
+    <div class="rt-sub">blocks until retarget</div>
+    <div class="rt-row"><span class="rt-k">Current Height</span><span class="rt-v b" id="rt-height">—</span></div>
+    <div class="rt-row"><span class="rt-k">Next Retarget Block</span><span class="rt-v au" id="rt-next">—</span></div>
+    <div class="rt-row"><span class="rt-k">Est. Retarget Date</span><span class="rt-v g" id="rt-date">—</span></div>
+    <div class="rt-row"><span class="rt-k">Projected Δ Difficulty</span><span class="rt-v" id="rt-chg">—</span></div>
+    <div class="rt-row"><span class="rt-k">Avg Block Time</span><span class="rt-v" id="rt-bt">—</span></div>
+    <div class="ep-meta"><span>Epoch Progress (2016 blocks)</span><span id="ep-pct">—</span></div>
+    <div class="ep-track"><div class="ep-fill" id="ep-bar" style="width:0%"></div></div>
   </div>
+</div>
 
-  <!-- Workers -->
-  <div class="card section">
-    <h2>Workers</h2>
-    <table>
-      <thead><tr><th>Worker</th><th>Hashrate (5m)</th><th>Shares</th><th>Best Share</th><th>Status</th></tr></thead>
-      <tbody id="workersBody"><tr><td colspan="5" class="empty-state">Loading...</td></tr></tbody>
-    </table>
+<div class="panel g-workers">
+  <div class="ph">
+    <span class="pt">Workers</span>
+    <div style="display:flex;align-items:center;gap:7px;">
+      <span style="font-size:.5rem;color:var(--tsec);" id="wk-stats">—</span>
+      <span class="pb g" id="wk-badge">Loading…</span>
+    </div>
   </div>
+  <div class="pbody"><div id="workers-body"><div class="empty"><span class="spin"></span>Loading workers…</div></div></div>
+</div>
 
-  <!-- Mining addresses -->
-  <div class="card section">
-    <h2>Mining Addresses</h2>
-    <table>
-      <thead><tr><th>Address</th><th>Hashrate (5m)</th><th>Workers</th><th>Shares</th></tr></thead>
-      <tbody id="usersBody"><tr><td colspan="4" class="empty-state">Loading...</td></tr></tbody>
-    </table>
+<div class="panel g-addrs">
+  <div class="ph"><span class="pt">Mining Addresses</span><span class="pb b">POOL-WIDE</span></div>
+  <div class="pbody"><div id="addrs-body"><div class="empty"><span class="spin"></span>Loading…</div></div></div>
+</div>
+
+<div class="panel g-blocks">
+  <div class="ph"><span class="pt">Blocks Found</span><span class="pb g" id="blk-badge">0 FOUND</span></div>
+  <div class="pbody"><div id="blocks-body"><div class="empty">No blocks found yet — keep hashing! 🚀</div></div></div>
+</div>
+
+<div class="panel g-fees">
+  <div class="ph"><span class="pt">Mempool · Next Block Fees</span><span class="pb b">mempool.space</span></div>
+  <div class="pbody">
+    <div class="fee-grid">
+      <div class="fee-cell"><div class="fee-l">Low Priority</div><div class="fee-v sl" id="fee-sl">—</div><div class="fee-u">sat/vB · ~1hr</div></div>
+      <div class="fee-cell"><div class="fee-l">Medium</div><div class="fee-v md" id="fee-md">—</div><div class="fee-u">sat/vB · ~30min</div></div>
+      <div class="fee-cell"><div class="fee-l">High Priority</div><div class="fee-v fs" id="fee-fs">—</div><div class="fee-u">sat/vB · next block</div></div>
+    </div>
+    <div class="mbar-wrap">
+      <div class="mbar-meta"><span>Mempool Congestion</span><span id="mpool-sz">—</span></div>
+      <div class="mbar-track"><div class="mbar-fill" id="mbar" style="width:0%"></div></div>
+    </div>
+    <div class="fee-note" id="fee-note">Loading…</div>
   </div>
+</div>
 
-  <!-- Blocks found -->
-  <div class="card section">
-    <h2>Blocks Found &#127881;</h2>
-    <table>
-      <thead><tr><th>Height</th><th>Hash</th><th>Reward (BTC)</th><th>Finder</th><th>Time</th></tr></thead>
-      <tbody id="blocksBody"><tr><td colspan="5" class="empty-state">No blocks found yet &mdash; keep hashing! &#128640;</td></tr></tbody>
-    </table>
+<div class="panel g-scores">
+  <div class="ph"><span class="pt">Best Difficulty Records</span><span class="pb o">ALL WORKERS</span></div>
+  <div class="pbody"><div id="scores-body"><div class="empty"><span class="spin"></span>Loading…</div></div></div>
+</div>
+
+<div class="panel g-donate">
+  <div class="ph"><span class="pt">Support SoloStrike.io</span><span class="pb o">BTC · No Fee Pool</span></div>
+  <div class="pbody" style="text-align:center;">
+    <div style="font-size:.52rem;color:var(--tsec);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">No fees. Donations welcome if you find a block ⚡</div>
+    <div id="qr-wrap" style="margin-bottom:8px;"></div>
+    <div class="don-addr" onclick="copyAddr()" title="Click to copy">
+      15GotcHsykf4mdWF8cGZM5nVzYcysJk5YH
+      <span style="font-size:.46rem;color:var(--tsec);display:block;margin-top:2px;">tap to copy · or open in wallet ↓</span>
+    </div>
+    <a href="bitcoin:15GotcHsykf4mdWF8cGZM5nVzYcysJk5YH?label=SoloStrike.io" style="display:inline-block;background:var(--orange);color:#000;font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 13px;margin-bottom:8px;">Open in Wallet</a>
+    <div class="don-note">SoloStrike.io is free &amp; open source.<br>Built on CKPool © Con Kolivas &amp; Andrew Smith (GPLv3)</div>
   </div>
+</div>
 
-  <div class="last-update">Last updated: <span id="lastUpdate">--</span></div>
-</main>
-
-<footer>
-  <strong>CKPool Solo for Umbrel</strong> &nbsp;&middot;&nbsp;
-  Forked &amp; packaged by <a href="https://solostrike.io" target="_blank">Gil Bechtel &middot; SoloStrike.io</a><br>
-  Powered by <a href="https://bitbucket.org/ckolivas/ckpool" target="_blank">CKPool</a> by Con Kolivas &amp; Andrew Smith &nbsp;&middot;&nbsp; GNU GPLv3<br>
-  <a href="https://solostrike.io" target="_blank" style="color:var(--orange);font-weight:600;">Support this project at SoloStrike.io</a>
+</div></div>
+<footer id="footer">
+  <a href="https://solostrike.io" target="_blank" rel="noopener">SoloStrike.io</a> &nbsp;·&nbsp;
+  Forked &amp; packaged by <a href="https://github.com/gbechtel-beck" target="_blank" rel="noopener">Gil Bechtel</a> &nbsp;·&nbsp;
+  Powered by <a href="https://github.com/ckolivas/ckpool" target="_blank" rel="noopener">CKPool</a> © Con Kolivas &amp; Andrew Smith (GPLv3) &nbsp;·&nbsp;
+  <span id="ft-uptime"></span>
 </footer>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-  function parseHR(hr) {
-    if (!hr) return 0;
-    const s = String(hr);
-    const n = parseFloat(s);
-    if (s.indexOf("P") > -1) return n * 1e15;
-    if (s.indexOf("T") > -1) return n * 1e12;
-    if (s.indexOf("G") > -1) return n * 1e9;
-    if (s.indexOf("M") > -1) return n * 1e6;
-    if (s.indexOf("K") > -1) return n * 1e3;
-    return n;
-  }
+(function(){
+'use strict';
+const REFRESH=30000, DONATE='15GotcHsykf4mdWF8cGZM5nVzYcysJk5YH', BLOCK_BTC=3.125;
 
-  function fmtHR(hr) {
-    const h = typeof hr === "number" ? hr : parseHR(hr);
-    if (!h) return "0 H/s";
-    if (h >= 1e18) return (h/1e18).toFixed(2) + " EH/s";
-    if (h >= 1e15) return (h/1e15).toFixed(2) + " PH/s";
-    if (h >= 1e12) return (h/1e12).toFixed(2) + " TH/s";
-    if (h >= 1e9)  return (h/1e9).toFixed(2)  + " GH/s";
-    if (h >= 1e6)  return (h/1e6).toFixed(2)  + " MH/s";
-    if (h >= 1e3)  return (h/1e3).toFixed(2)  + " KH/s";
-    return h.toFixed(0) + " H/s";
-  }
+/* ── STATE ── */
+let _data=null, _price=null, _poolHR=0, _lastBTC=null;
+let _hrC=null, _varC=null, _chartReady=false;
+let _hrPts=[], _prevBlks=0, _celebActive=false, _matInt=null;
+let _lastShrTs=0, _shrHist=[];
 
-  function fmtNum(n) {
-    if (n == null) return "--";
-    return Number(n).toLocaleString();
-  }
+/* ── UTILS ── */
+const $=id=>document.getElementById(id);
+const set=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
 
-  function fmtDiff(n) {
-    if (!n) return "--";
-    if (n >= 1e15) return (n/1e15).toFixed(2) + "P";
-    if (n >= 1e12) return (n/1e12).toFixed(2) + "T";
-    if (n >= 1e9)  return (n/1e9).toFixed(2)  + "G";
-    if (n >= 1e6)  return (n/1e6).toFixed(2)  + "M";
-    if (n >= 1e3)  return (n/1e3).toFixed(2)  + "K";
-    return Number(n).toLocaleString();
-  }
+/* Parse ckpool hashrate strings: "106T", "984G", "1.25T", "116", "0" */
+function parseHR(s){
+  if(!s)return 0;
+  const n=parseFloat(s);if(isNaN(n))return 0;
+  const str=String(s);
+  if(str.indexOf('E')>-1||str.indexOf('e')>-1)return n;
+  if(str.indexOf('P')>-1)return n*1e15;
+  if(str.indexOf('T')>-1)return n*1e12;
+  if(str.indexOf('G')>-1)return n*1e9;
+  if(str.indexOf('M')>-1)return n*1e6;
+  if(str.indexOf('K')>-1)return n*1e3;
+  return n;
+}
+function fmtHR(h){
+  if(!h||isNaN(h))return{v:'—',u:''};
+  const u=['H/s','KH/s','MH/s','GH/s','TH/s','PH/s','EH/s'];
+  let i=0;while(h>=1000&&i<u.length-1){h/=1000;i++;}
+  return{v:h.toFixed(2),u:u[i]};
+}
+const fmtHRs=h=>{const r=fmtHR(h);return r.v+(r.u?' '+r.u:'');};
+const fmtEH=h=>h?(h/1e18).toFixed(2)+' EH/s':'—';
+const fmtD=d=>d?(d/1e12).toFixed(2)+'T':'—';
+function fmtUSD(n){if(!n)return'—';const s=Math.round(n).toString();const p=[];for(let i=s.length;i>0;i-=3)p.unshift(s.slice(Math.max(0,i-3),i));return'$'+p.join(',');}
+function fmtN(n){if(!n||isNaN(n)||n<0.01)return'—';if(n>=1e12)return(n/1e12).toFixed(3)+'T';if(n>=1e9)return(n/1e9).toFixed(3)+'B';if(n>=1e6)return(n/1e6).toFixed(3)+'M';if(n>=1e3)return(n/1e3).toFixed(2)+'K';return Number(n).toFixed(2);}
+/* unix timestamp → human */
+function ago(ts){
+  if(!ts)return'—';
+  const s=Math.floor(Date.now()/1000-ts);
+  if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';
+}
+function fmtUp(ts){
+  if(!ts)return'—';
+  const s=Math.floor(Date.now()/1000-ts);
+  const d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60);
+  if(d>0)return d+'d '+h+'h '+m+'m';if(h>0)return h+'h '+m+'m';return m+'m';
+}
+function shortA(a){return(!a||a.length<12)?a||'—':a.slice(0,8)+'…'+a.slice(-6);}
 
-  function fmtTime(seconds) {
-    if (!seconds || seconds <= 0) return "--";
-    const mins = seconds / 60;
-    const hours = mins / 60;
-    const days = hours / 24;
-    const years = days / 365.25;
-    if (years > 1000) return Math.round(years).toLocaleString() + " years";
-    if (years > 1) return years.toFixed(1) + " years";
-    if (days > 1)  return days.toFixed(1) + " days";
-    if (hours > 1) return hours.toFixed(1) + " hours";
-    return Math.round(mins) + " min";
-  }
+/* ── FETCH ── */
+async function get(p){try{const r=await fetch(p,{cache:'no-store'});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
+async function ext(url){try{const r=await fetch(url,{cache:'no-store'});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
+async function fetchBTC(){
+  const srcs=[{u:'https://mempool.space/api/v1/prices',p:d=>d?.USD},{u:'https://blockchain.info/ticker',p:d=>d?.USD?.last},{u:'https://api.coincap.io/v2/assets/bitcoin',p:d=>parseFloat(d?.data?.priceUsd)}];
+  for(const s of srcs){try{const r=await ext(s.u);const p=s.p(r);if(p&&p>1000)return p;}catch(e){}}return null;
+}
 
-  function fmtTimeAgo(unixTs) {
-    if (!unixTs) return "--";
-    const diff = Math.floor(Date.now()/1000) - unixTs;
-    if (diff < 60) return diff + "s ago";
-    if (diff < 3600) return Math.floor(diff/60) + "m ago";
-    if (diff < 86400) return Math.floor(diff/3600) + "h ago";
-    return Math.floor(diff/86400) + "d ago";
-  }
+/* ── CHART THEME ── */
+function th(){return{g:'rgba(0,230,118,.04)',t:'#365438',tb:'#0b110b',tbd:'#1a2d1a',tt:'#5f8f65'};}
 
-  function fmtPct(pct) {
-    if (pct < 0.000001) return pct.toExponential(3) + "%";
-    if (pct < 0.001) return pct.toFixed(7) + "%";
-    return pct.toFixed(4) + "%";
-  }
-
-  async function refresh() {
-    try {
-      const res = await fetch("/api/summary");
-      const data = await res.json();
-      const net = data.network || {};
-      const users = data.users || [];
-      const workers = data.workers || [];
-
-      document.getElementById("statusDot").className = "status-dot online";
-      document.getElementById("totalHashrate").textContent = fmtHR(data.totalHashrate);
-      document.getElementById("totalWorkers").textContent = data.totalWorkers || 0;
-      document.getElementById("blocksFound").textContent = (data.blocks || []).length;
-      document.getElementById("totalShares").textContent = fmtNum(data.totalShares);
-      document.getElementById("lastUpdate").textContent = data.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString() : "--";
-
-      // Hashrate timeline from first user (aggregate)
-      if (users.length > 0) {
-        const u = users[0];
-        document.getElementById("hr1m").textContent  = u.hashrate1m  || "--";
-        document.getElementById("hr5m").textContent  = u.hashrate5m  || "--";
-        document.getElementById("hr1hr").textContent = u.hashrate1hr || "--";
-        document.getElementById("hr1d").textContent  = u.hashrate1d  || "--";
-        document.getElementById("hr7d").textContent  = u.hashrate7d  || "--";
-        document.getElementById("lastShare").textContent = fmtTimeAgo(u.lastshare);
-      }
-
-      // Network difficulty
-      const netDiff = net.difficulty || 138966872071213;
-      document.getElementById("networkDiff").textContent = fmtDiff(netDiff);
-
-      // Block height & retarget
-      if (net.blocks) {
-        document.getElementById("blockHeight").textContent = fmtNum(net.blocks);
-        document.getElementById("blocksUntilRetarget").textContent = fmtNum(net.blocksUntilRetarget);
-        document.getElementById("retargetBlock").textContent = "Next retarget at block " + fmtNum(net.retargetBlock);
-        document.getElementById("retargetTime").textContent = fmtTime(net.estRetargetSeconds);
-        const epochPct = (net.blocksInEpoch / 2016) * 100;
-        document.getElementById("retargetBar").style.width = epochPct.toFixed(1) + "%";
-        document.getElementById("retargetPct").textContent =
-          fmtNum(net.blocksInEpoch) + " blocks into current epoch (" + epochPct.toFixed(1) + "% of 2016)";
-      }
-
-      // Est time to block
-      const netHashps = net.networkhashps || 0;
-      if (data.totalHashrate > 0 && netDiff > 0) {
-        const estSec = (netDiff * Math.pow(2, 32)) / data.totalHashrate;
-        document.getElementById("estTime").textContent = fmtTime(estSec);
-
-        // Dynamic explainer
-        const hrStr = fmtHR(data.totalHashrate);
-        const diffStr = fmtDiff(netDiff);
-        const timeStr = fmtTime(estSec);
-        document.getElementById("estExplainer").innerHTML =
-          "<strong>Estimated time</strong> is calculated as: <strong>Network Difficulty &divide; Your Hashrate &times; 2&sup3;&sup2;</strong>. " +
-          "At " + hrStr + " against " + diffStr + " difficulty, the average time between blocks is roughly <strong>" + timeStr + "</strong> " +
-          "&mdash; but any single hash could win. Solo mining is a lottery where every ticket has the same odds.";
-      }
-
-      // Best share
-      let bestShare = 0, bestEver = 0;
-      for (const u of users) {
-        if ((u.bestshare || 0) > bestShare) bestShare = u.bestshare;
-        if ((u.bestever || 0) > bestEver) bestEver = u.bestever;
-      }
-      document.getElementById("bestShare").textContent = fmtDiff(bestShare);
-      document.getElementById("bestEver").textContent  = fmtDiff(bestEver);
-      const pct = bestShare > 0 ? Math.min((bestShare / netDiff) * 100, 100) : 0;
-      document.getElementById("bestShareBar").style.width = Math.max(pct * 1000, pct > 0 ? 0.5 : 0) + "%";
-      document.getElementById("bestSharePct").textContent = fmtPct(pct) + " of network difficulty";
-
-      // Pool network odds
-      if (netHashps > 0 && data.totalHashrate > 0) {
-        const poolPct = (data.totalHashrate / netHashps) * 100;
-        const estBlockSec = netHashps / data.totalHashrate * 600;
-        const estBlockDays = estBlockSec / 86400;
-        const estBlockYears = estBlockDays / 365.25;
-        const netHRStr = fmtHR(netHashps);
-        const poolHRStr = fmtHR(data.totalHashrate);
-        document.getElementById("oddsText").innerHTML =
-          "At <strong class='orange'>" + poolHRStr + "</strong> pool hashrate vs <strong class='blue'>" + netHRStr + "</strong> network, " +
-          "your pool controls <strong class='purple'>" + poolPct.toExponential(4) + "%</strong> of global hash. " +
-          "Statistically, expect one block every <strong class='yellow'>" +
-          (estBlockYears > 1 ? estBlockYears.toFixed(1) + " years" : estBlockDays.toFixed(0) + " days") +
-          " (" + Math.round(estBlockDays).toLocaleString() + " days)</strong>. " +
-          "Any individual block can succeed at any time regardless of expected wait.";
-      } else {
-        document.getElementById("oddsText").textContent = "Waiting for network data...";
-      }
-
-      // Workers table
-      const wb = document.getElementById("workersBody");
-      if (workers.length) {
-        wb.innerHTML = workers.map(w => {
-          const name = w.workername || "--";
-          return "<tr><td class='mono'>" + name + "</td><td>" + fmtHR(w.hashrate5m || w.hashrate1m) +
-            "</td><td>" + fmtNum(w.shares) + "</td><td>" + fmtDiff(w.bestshare) +
-            "</td><td><span class='badge badge-green'>Active</span></td></tr>";
-        }).join("");
-      } else {
-        wb.innerHTML = "<tr><td colspan='5' class='empty-state'>No workers connected</td></tr>";
-      }
-
-      // Users table
-      const ub = document.getElementById("usersBody");
-      if (users.length) {
-        ub.innerHTML = users.map(u => {
-          const addr = u.address || "--";
-          const short = addr.substring(0, 20) + "...";
-          const link = "<a href='https://mempool.space/address/" + addr + "' target='_blank'>" + short + "</a>";
-          return "<tr><td class='mono'>" + link + "</td><td>" + fmtHR(u.hashrate5m || u.hashrate1m) +
-            "</td><td>" + fmtNum(u.workers) + "</td><td>" + fmtNum(u.shares) + "</td></tr>";
-        }).join("");
-      } else {
-        ub.innerHTML = "<tr><td colspan='4' class='empty-state'>No addresses seen yet</td></tr>";
-      }
-
-      // Blocks
-      const bb = document.getElementById("blocksBody");
-      if (data.blocks && data.blocks.length) {
-        bb.innerHTML = data.blocks.map(b => {
-          const addr = b.address || b.username || "--";
-          return "<tr><td>" + (b.height || "--") + "</td><td class='mono' style='font-size:0.65rem'>" +
-            (b.blockhash || b.hash || "--") + "</td><td>" +
-            (b.reward ? (b.reward/1e8).toFixed(8) : "--") + "</td><td class='mono'>" +
-            addr.substring(0,16) + "...</td><td>" +
-            (b.createdate ? new Date(b.createdate*1000).toLocaleString() : "--") + "</td></tr>";
-        }).join("");
-      }
-
-    } catch(e) {
-      document.getElementById("statusDot").className = "status-dot";
-      console.error("API error:", e);
+/* ── BUILD HR CHART from rolling history ── */
+function buildHR(pts){
+  const ctx=$('hr-chart');if(!ctx||typeof Chart==='undefined')return;
+  if(_hrC)_hrC.destroy();
+  const c=th();
+  const lbl=pts.map(p=>p.t);
+  const hrD=pts.map(p=>p.v/1e12);
+  const diff=_data?.network?.difficulty?_data.network.difficulty/1e12:0;
+  const ds=[{label:'Pool HR',data:hrD,borderColor:'#00e676',backgroundColor:'rgba(0,230,118,.055)',borderWidth:1.5,pointRadius:0,fill:true,tension:0.3,yAxisID:'yH'}];
+  if(diff>0)ds.push({label:'Network Diff',data:pts.map(()=>diff),borderColor:'rgba(255,214,0,.55)',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,fill:false,tension:0,borderDash:[5,3],yAxisID:'yD'});
+  _hrC=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:ds},options:{
+    responsive:true,maintainAspectRatio:false,animation:{duration:180},interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:diff>0,labels:{color:c.t,font:{family:'JetBrains Mono',size:8},boxWidth:14,padding:8,usePointStyle:true}},
+      tooltip:{backgroundColor:c.tb,borderColor:c.tbd,borderWidth:1,titleColor:c.tt,titleFont:{family:'JetBrains Mono',size:8},bodyFont:{family:'JetBrains Mono',size:9},
+        callbacks:{label:x=>x.dataset.label==='Network Diff'?'Diff: '+x.raw.toFixed(2)+'T':'HR: '+x.raw.toFixed(2)+' TH/s'}}
+    },
+    scales:{
+      x:{grid:{color:c.g,drawBorder:false},ticks:{color:c.t,font:{family:'JetBrains Mono',size:7},maxTicksLimit:10}},
+      yH:{position:'left',grid:{color:c.g,drawBorder:false},ticks:{color:'#00e676',font:{family:'JetBrains Mono',size:7},callback:v=>v.toFixed(0)+' T'},beginAtZero:true},
+      yD:{position:'right',grid:{display:false,drawBorder:false},ticks:{color:'#ffd600',font:{family:'JetBrains Mono',size:7},callback:v=>v.toFixed(0)+'T'},display:diff>0}
     }
-  }
+  }});
+}
+function buildVar(pts){
+  const ctx=$('var-chart');if(!ctx||typeof Chart==='undefined')return;
+  if(_varC)_varC.destroy();
+  const c=th();
+  const vals=pts.map(p=>p.v/1e12);
+  const ws=6,roll=vals.map((v,i)=>{const sl=vals.slice(Math.max(0,i-ws+1),i+1);return sl.reduce((a,b)=>a+b,0)/sl.length;});
+  _varC=new Chart(ctx,{type:'line',data:{labels:pts.map(p=>p.t),datasets:[
+    {label:'Actual HR',data:vals,borderColor:'rgba(0,230,118,.45)',backgroundColor:'rgba(0,230,118,.04)',borderWidth:1,pointRadius:0,fill:true,tension:0.2},
+    {label:'1h Rolling Avg',data:roll,borderColor:'#40c4ff',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,fill:false,tension:0.4,borderDash:[4,3]}
+  ]},options:{
+    responsive:true,maintainAspectRatio:false,animation:{duration:180},interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:true,labels:{color:c.t,font:{family:'JetBrains Mono',size:8},boxWidth:14,padding:8}},
+      tooltip:{backgroundColor:c.tb,borderColor:c.tbd,borderWidth:1,titleColor:c.tt,titleFont:{family:'JetBrains Mono',size:8},bodyFont:{family:'JetBrains Mono',size:9},callbacks:{label:x=>x.raw!==null?x.raw.toFixed(2)+' TH/s':'—'}}},
+    scales:{x:{grid:{color:c.g,drawBorder:false},ticks:{color:c.t,font:{family:'JetBrains Mono',size:7},maxTicksLimit:10}},
+      y:{grid:{color:c.g,drawBorder:false},ticks:{color:c.t,font:{family:'JetBrains Mono',size:7},callback:v=>v.toFixed(0)+' T'},beginAtZero:true}}
+  }});
+  const avg=vals.reduce((a,b)=>a+b,0)/vals.length,peak=Math.max(...vals);
+  const vari=avg>0?Math.sqrt(vals.reduce((a,b)=>a+(b-avg)**2,0)/vals.length)/avg*100:0;
+  set('var-avg',fmtHRs(avg*1e12));set('var-peak',fmtHRs(peak*1e12));set('var-pct',vari.toFixed(1)+'%');
+}
+window.switchTab=function(tab,el){
+  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.cpane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  const pane=document.getElementById('pane-'+tab);if(pane)pane.classList.add('active');
+  if(tab==='var'&&_hrPts.length)buildVar(_hrPts);
+  if(tab==='24h'&&_hrPts.length)buildHR(_hrPts);
+};
 
-  refresh();
-  setInterval(refresh, 15000);
+/* ── ODDS ── */
+function renderOdds(){
+  const net=_data?.network;if(!net||!_poolHR)return;
+  const netHR=net.networkhashps||0;if(!netHR)return;
+  const share=_poolHR/netHR,pct=share*100;
+  const mag=pct>0?Math.floor(Math.log10(Math.abs(pct))):0,dec=Math.max(2,-mag+3);
+  const n=Math.round(1/share);
+  const ratio=n>1e9?'1 in '+(n/1e9).toFixed(2)+'B':n>1e6?'1 in '+(n/1e6).toFixed(2)+'M':'1 in '+n.toLocaleString();
+  const sec=600/share,days=sec/86400,yrs=days/365.25;
+  const ttb=sec<3600?Math.round(sec/60)+' min':sec<86400?(sec/3600).toFixed(1)+' hr':days<90?days.toFixed(1)+' days':yrs<2?(days/30).toFixed(0)+' months':yrs.toFixed(1)+' yrs';
+  const usd=_price?BLOCK_BTC*_price:null;
+  set('odds-ratio',ratio);set('odds-time',ttb);set('odds-share',pct.toFixed(dec)+'%');
+  set('odds-usd',usd?fmtUSD(Math.round(usd)):'—');
+  set('sc-ttb',ttb);set('sc-bval',usd?fmtUSD(Math.round(usd)):'—');
+  const noteT=yrs>2?yrs.toFixed(1)+' yrs ('+Math.round(days)+'d)':days>=1?days.toFixed(1)+' days':(sec/3600).toFixed(1)+' hrs';
+  const on=$('odds-note');
+  if(on)on.innerHTML=`Pool at <strong>${fmtHRs(_poolHR)}</strong> vs <strong>${fmtEH(netHR)}</strong> — <strong>${pct.toFixed(dec)}%</strong> of global hash. Expected one block every <strong>${noteT}</strong>. Any block can succeed at any time.`;
+}
+
+/* ── HR ROWS ── */
+function renderHRRows(d){
+  const el=$('hrrows-body');if(!el)return;
+  // Use the first user's hashrates as pool totals (only 1 user in your setup)
+  // Falls back to totalHashrate from summary
+  const u=d.users?.[0]||{};
+  const vals={
+    '1 Min': parseHR(u.hashrate1m)||0,
+    '5 Min': parseHR(u.hashrate5m)||d.totalHashrate||0,
+    '1 Hour':parseHR(u.hashrate1hr)||0,
+    '1 Day': parseHR(u.hashrate1d)||0,
+    '7 Days':parseHR(u.hashrate7d)||0
+  };
+  _poolHR=vals['5 Min']||d.totalHashrate||0;
+  const hr5=fmtHR(_poolHR);
+  set('sc-hr',hr5.v);set('sc-hru',hr5.u+' · all workers');set('tk-hr',hr5.v+' '+hr5.u);
+  set('hr1m',fmtHRs(vals['1 Min']));set('hr5m',fmtHRs(vals['5 Min']));
+  set('hr1h',fmtHRs(vals['1 Hour']));set('hr1d',fmtHRs(vals['1 Day']));set('hr7d',fmtHRs(vals['7 Days']));
+  const maxV=Math.max(...Object.values(vals).filter(v=>v>0))||1;
+  el.innerHTML=Object.entries(vals).map(([l,v])=>{
+    const r=fmtHR(v),pct=v>0?Math.min(100,(v/maxV)*100):0;
+    return`<div class="hr-row"><span class="hr-l">${l}</span><div class="hr-track"><div class="hr-fill" style="width:${pct.toFixed(1)}%"></div></div><span class="hr-val${v>0&&v<_poolHR*0.4?' dim':''}">${r.v} ${r.u}</span></div>`;
+  }).join('');
+  // Last share from user
+  const ls=u.lastshare||0;
+  set('last-share',ago(ls));
+  updateShareRate(ls);
+  // Add rolling chart point
+  if(_poolHR>0){
+    const now=new Date();
+    const lbl=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+    _hrPts.push({t:lbl,v:_poolHR});
+    if(_hrPts.length>72)_hrPts=_hrPts.slice(-72);
+  }
+}
+
+/* ── WORKERS ── */
+function renderWorkers(d){
+  const el=$('workers-body'),badge=$('wk-badge'),wkStats=$('wk-stats');if(!el)return;
+  const workers=d.workers||[];
+  if(!workers.length){
+    if(badge)badge.textContent='No Workers';if(wkStats)wkStats.textContent='';
+    el.innerHTML='<div class="empty">No active workers detected.</div>';
+    set('tk-wk','0');set('sc-wk','0');return;
+  }
+  const now=Math.floor(Date.now()/1000);
+  // status: active <5min, stale 5-15min, offline >15min
+  const active=workers.filter(w=>now-(w.lastshare||0)<300).length;
+  const stale=workers.filter(w=>{const s=now-(w.lastshare||0);return s>=300&&s<900;}).length;
+  const maxHR=Math.max(...workers.map(w=>parseHR(w.hashrate5m||w.hashrate1m)))||1;
+  if(badge)badge.textContent=workers.length+' Workers';
+  if(wkStats)wkStats.innerHTML=`<span style="color:var(--green)">${active} active</span> · <span style="color:var(--gold)">${stale} stale</span> · <span style="color:var(--red)">${workers.length-active-stale} offline</span>`;
+  set('tk-wk',workers.length.toString());set('sc-wk',workers.length.toString());
+  el.innerHTML='<div class="wk-grid">'+[...workers].sort((a,b)=>parseHR(b.hashrate5m||b.hashrate1m)-parseHR(a.hashrate5m||a.hashrate1m)).map(w=>{
+    const age=now-(w.lastshare||0);
+    const st=age<300?'active':age<900?'stale':'offline';
+    const hr=fmtHR(parseHR(w.hashrate5m||w.hashrate1m));
+    const sp=Math.min(100,(parseHR(w.hashrate5m||w.hashrate1m)/maxHR)*100);
+    // worker name: strip address prefix
+    const fullName=w.workername||'unknown';
+    const dotIdx=fullName.indexOf('.');
+    const shortName=dotIdx>-1?fullName.slice(dotIdx+1):fullName;
+    const addr=dotIdx>-1?fullName.slice(0,dotIdx):'';
+    // strip +DIFF suffix from name
+    const cleanName=shortName.replace(/\+\d+$/,'');
+    return`<div class="wk ${st}">
+      <div class="wk-name" title="${fullName}">${cleanName}</div>
+      ${addr?`<div class="wk-addr" title="${addr}">${shortA(addr)}</div>`:''}
+      <div class="wk-hr">${hr.v} <span>${hr.u}</span></div>
+      <div class="wk-row2">
+        <span class="wkv"><span class="k">Shares:</span><span class="v o">${fmtN(w.shares||0)}</span></span>
+        <span class="wkv"><span class="k">Best:</span><span class="v g">${fmtN(w.bestshare||0)}</span></span>
+      </div>
+      <div class="wk-row2">
+        <span class="wkv"><span class="k">1m:</span><span class="v">${fmtHRs(parseHR(w.hashrate1m))}</span></span>
+        <span class="wkv"><span class="k">Seen:</span><span class="v">${ago(w.lastshare)}</span></span>
+      </div>
+      <div class="wk-bar"><div class="wk-bar-f" style="width:${sp.toFixed(1)}%"></div></div>
+      <div class="wk-st ${st}">${st}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+/* ── ADDRESSES ── */
+function renderAddrs(d){
+  const el=$('addrs-body');if(!el)return;
+  const users=d.users||[];
+  if(!users.length){el.innerHTML='<div class="empty">No address data</div>';return;}
+  el.innerHTML='<table class="dt"><thead><tr><th>Address</th><th>HR 5m</th><th>HR 1h</th><th>Workers</th><th>Shares</th><th>Best Share</th><th>Last Share</th></tr></thead><tbody>'+
+    users.map(u=>`<tr>
+      <td><span class="mono">${shortA(u.address||'—')}</span></td>
+      <td class="g">${fmtHRs(parseHR(u.hashrate5m))}</td>
+      <td class="dim">${fmtHRs(parseHR(u.hashrate1hr))}</td>
+      <td class="dim">${u.workers||'—'}</td>
+      <td class="dim">${fmtN(u.shares||0)}</td>
+      <td class="o">${fmtN(u.bestshare||0)}</td>
+      <td class="dim">${ago(u.lastshare)}</td>
+    </tr>`).join('')+'</tbody></table>';
+}
+
+/* ── LUCK ── */
+function renderLuck(d){
+  const users=d.users||[];
+  const u=users[0]||{};
+  const netD=d.network?.difficulty||0;
+  const bestSess=u.bestshare||0;
+  const bestEver=u.bestever||u.bestshare||0;
+  set('best-sess',fmtN(bestSess));
+  set('best-ever',fmtN(bestEver));
+  set('net-diff-disp',netD?netD.toLocaleString():'—');
+  set('tot-sh',fmtN(d.totalShares||u.shares||0));
+  set('tot-users',d.totalUsers||users.length);
+  if(bestSess&&netD){
+    const pct=(bestSess/netD)*100;
+    const ps=pct>=100?'🎯 100%! (BLOCK LEVEL!)':pct>=1?pct.toFixed(3)+'%':pct.toFixed(5)+'%';
+    set('best-pct',ps);
+    const bar=$('luck-bar'),lbl=$('luck-lbl');
+    if(bar){bar.style.width=Math.min(100,pct).toFixed(2)+'%';bar.style.background=pct>=100?'var(--orange)':pct>=50?'linear-gradient(90deg,var(--gdim),var(--gold))':'linear-gradient(90deg,var(--gdim),var(--green))';}
+    if(lbl)lbl.textContent=ps;
+  } else set('best-pct','—');
+  // uptime from first user authorised timestamp
+  const auth=u.authorised||0;
+  if(auth){
+    const ub=$('uptime-span');
+    if(ub)ub.innerHTML=`<span class="up-badge"><span style="width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;"></span> ${fmtUp(auth)}</span>`;
+    set('ft-uptime','Pool Uptime: '+fmtUp(auth));
+  }
+}
+
+/* ── SCORES ── */
+function renderScores(d){
+  const el=$('scores-body');if(!el)return;
+  const workers=d.workers||[];
+  if(!workers.length){el.innerHTML='<div class="empty">No records yet</div>';return;}
+  const sorted=[...workers].sort((a,b)=>(b.bestshare||0)-(a.bestshare||0));
+  el.innerHTML='<table class="dt"><thead><tr><th>#</th><th>Worker</th><th>Best Diff</th><th>All-Time Best</th><th>Last Share</th></tr></thead><tbody>'+
+    sorted.slice(0,10).map((w,i)=>{
+      const fullName=w.workername||'unknown';
+      const cleanName=fullName.includes('.')?fullName.split('.')[1].replace(/\+\d+$/,''):fullName;
+      return`<tr>
+        <td style="font-size:.56rem;color:${i<3?'var(--orange)':'var(--tdim)'};">${['🥇','🥈','🥉'][i]||String(i+1).padStart(2,'0')}</td>
+        <td><span class="tag b">${cleanName}</span></td>
+        <td style="color:var(--orange);font-size:.74rem;font-weight:700;">${fmtN(w.bestshare||0)}</td>
+        <td class="au">${fmtN(w.bestever||0)}</td>
+        <td class="dim">${ago(w.lastshare)}</td>
+      </tr>`;
+    }).join('')+'</tbody></table>';
+}
+
+/* ── NETWORK ── */
+function renderNet(net){
+  if(!net)return;
+  set('tk-net',net.networkhashps?fmtEH(net.networkhashps):'—');
+  set('tk-diff',net.difficulty?fmtD(net.difficulty):'—');
+  set('tk-blk',net.blocks?'#'+Number(net.blocks).toLocaleString():'—');
+  set('sc-net',net.networkhashps?(net.networkhashps/1e18).toFixed(2):'—');
+  set('sc-diff',net.difficulty?fmtD(net.difficulty):'—');
+  set('net-diff-disp',net.difficulty?net.difficulty.toLocaleString():'—');
+  // Retarget from network data (server.js computes these)
+  if(net.blocks){set('rt-height','#'+Number(net.blocks).toLocaleString());}
+  if(net.blocksUntilRetarget){
+    set('rt-blks',Number(net.blocksUntilRetarget).toLocaleString());
+    set('rt-next',net.retargetBlock?'#'+Number(net.retargetBlock).toLocaleString():'—');
+    // Epoch progress
+    const prog=((net.blocksInEpoch||0)/2016)*100;
+    const bar=$('ep-bar');if(bar)bar.style.width=Math.min(100,prog).toFixed(1)+'%';
+    set('ep-pct',prog.toFixed(1)+'%');
+    // Estimated retarget date
+    const secsLeft=(net.estRetargetSeconds||net.blocksUntilRetarget*600);
+    const estDate=new Date(Date.now()+secsLeft*1000);
+    const diffDays=Math.round(secsLeft/86400);
+    set('rt-date',estDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})+'  (~'+diffDays+'d)');
+  }
+}
+
+/* ── RETARGET (mempool.space for diff change %) ── */
+async function fetchRetarget(){
+  const d=await ext('https://mempool.space/api/v1/difficulty-adjustment');if(!d)return;
+  const change=d.difficultyChange??null,avg=d.timeAvg??null;
+  if(change!==null){const p=parseFloat(change),e=$('rt-chg');if(e){e.textContent=(p>=0?'+':'')+p.toFixed(2)+'%';e.className='rt-v '+(p>1?'r':p<-1?'g':'au');}}
+  if(avg!==null){const s=Math.round(avg/1000),m=Math.floor(s/60),sc=s%60,e=$('rt-bt');if(e){e.textContent=m+'m '+String(sc).padStart(2,'0')+'s';e.className='rt-v '+(s<560?'g':s>660?'r':'au');}}
+}
+
+/* ── FEES ── */
+async function fetchFees(){
+  const [fees,mp]=await Promise.all([ext('https://mempool.space/api/v1/fees/recommended'),ext('https://mempool.space/api/mempool')]);
+  if(fees){set('fee-sl',fees.hourFee??'—');set('fee-md',fees.halfHourFee??'—');set('fee-fs',fees.fastestFee??'—');const fn=$('fee-note');if(fn)fn.textContent=`Next block ~${fees.fastestFee??'?'} sat/vB · 30min ~${fees.halfHourFee??'?'} sat/vB · 1hr ~${fees.hourFee??'?'} sat/vB · Economy ~${fees.minimumFee??fees.economyFee??'?'} sat/vB`;}
+  if(mp){const MB=(mp.vsize||mp.size||0)/1e6;const bar=$('mbar');if(bar)bar.style.width=Math.min(100,(MB/300)*100).toFixed(1)+'%';const sz=$('mpool-sz');if(sz)sz.textContent=MB.toFixed(1)+' MB · '+((mp.count||0)/1e3).toFixed(0)+'K txs';}
+}
+
+/* ── SHARE RATE ── */
+function updateShareRate(lastShareTs){
+  if(!lastShareTs||lastShareTs===_lastShrTs)return;
+  _lastShrTs=lastShareTs;
+  const now=Date.now();
+  _shrHist.push(now);_shrHist=_shrHist.filter(t=>now-t<60000);
+  const elapsed=_shrHist.length>1?(now-_shrHist[0])/1000:60;
+  const rate=elapsed>0?(_shrHist.length/elapsed).toFixed(2):'—';
+  set('srate',rate);
+}
+
+/* ── BTC PRICE ── */
+async function updateBTC(){
+  const p=await fetchBTC();if(!p)return;
+  const prev=_lastBTC;_lastBTC=p;_price=p;
+  const e=$('tk-btc');if(e){e.textContent=fmtUSD(p);if(prev&&prev!==p){e.classList.remove('fu','fd');void e.offsetWidth;e.classList.add(p>prev?'fu':'fd');setTimeout(()=>e.classList.remove('fu','fd'),800);}}
+}
+
+/* ── BLOCK FOUND ── */
+window.dismissBlock=function(){const o=$('bf-ov');if(o)o.classList.remove('active');_celebActive=false;if(_matInt){clearInterval(_matInt);_matInt=null;}};
+function triggerBlock(h){
+  if(_celebActive)return;_celebActive=true;
+  const o=$('bf-ov');if(!o)return;
+  set('bf-ht',h?'Block #'+Number(h).toLocaleString():'New Block Solved!');
+  o.classList.add('active');
+  const cv=$('bf-cv');if(!cv)return;
+  const ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const chars='01⚡₿BLOCKFOUND'.split('');const sz=14,cols=Math.floor(cv.width/sz),drops=Array(cols).fill(1);
+  _matInt=setInterval(()=>{
+    ctx.fillStyle='rgba(0,0,0,.05)';ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.font=sz+'px JetBrains Mono,monospace';
+    for(let i=0;i<drops.length;i++){const c=chars[Math.floor(Math.random()*chars.length)];const b=Math.random();ctx.fillStyle=b>.95?'#fff':b>.7?'#00e676':'rgba(0,230,118,.3)';ctx.fillText(c,i*sz,drops[i]*sz);if(drops[i]*sz>cv.height&&Math.random()>.975)drops[i]=0;drops[i]++;}
+  },33);
+  setTimeout(()=>{if(_celebActive)dismissBlock();},60000);
+}
+
+/* ── QR ── */
+function buildQR(){
+  const el=$('qr-wrap');if(!el)return;
+  if(typeof QRCode==='undefined'){el.innerHTML='<div style="font-size:.5rem;color:var(--tsec);padding:5px;">QR unavailable</div>';return;}
+  el.innerHTML='';
+  try{new QRCode(el,{text:'bitcoin:'+DONATE+'?label=SoloStrike.io',width:108,height:108,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});el.style.cssText='background:#fff;padding:4px;display:inline-block;line-height:0;';}catch(e){}
+}
+window.copyAddr=function(){
+  const fl=()=>{const a=$('don-addr');if(a){const o=a.style.borderColor;a.style.borderColor='var(--green)';setTimeout(()=>a.style.borderColor=o,1400);}};
+  if(navigator.clipboard?.writeText)navigator.clipboard.writeText(DONATE).then(fl).catch(fb);else fb();
+  function fb(){const t=document.createElement('textarea');t.value=DONATE;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);fl();}
+};
+
+/* ── REFRESH ── */
+window.manualRefresh=function(){const b=document.querySelector('#tbr .btn-s');if(b){b.textContent='Refreshing…';setTimeout(()=>b.textContent='Refresh',2000);}update();};
+
+/* ── MAIN UPDATE ── */
+async function update(){
+  const d=await get('/api/summary');
+  if(!d)return;
+  _data=d;
+
+  // Check for new blocks
+  const blkCount=d.blocks?.length||0;
+  if(_prevBlks>0&&blkCount>_prevBlks)triggerBlock(d.blocks?.[0]?.height);
+  _prevBlks=blkCount;
+  set('sc-blks',blkCount.toString());
+  const blkBadge=$('blk-badge');if(blkBadge)blkBadge.textContent=blkCount+' FOUND';
+
+  try{renderNet(d.network);}catch(e){}
+  try{await updateBTC();}catch(e){}
+  try{renderHRRows(d);}catch(e){console.warn('hrrows',e);}
+  try{renderWorkers(d);}catch(e){console.warn('workers',e);}
+  try{renderAddrs(d);}catch(e){}
+  try{renderLuck(d);}catch(e){}
+  try{renderScores(d);}catch(e){}
+  try{renderOdds();}catch(e){}
+
+  // Chart — rebuild from rolling history
+  try{
+    if(_hrPts.length){
+      if(!_chartReady){buildHR(_hrPts);buildVar(_hrPts);_chartReady=true;}
+      else buildHR(_hrPts);
+      const ts=$('chart-ts');if(ts){const d=new Date();ts.textContent=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+    }
+  }catch(e){}
+
+  try{fetchRetarget();}catch(e){}
+  try{fetchFees();}catch(e){}
+
+  const upd=$('last-upd');if(upd){const d=new Date();upd.textContent='Updated '+d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');}
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(buildQR,500);
+  const wait=setInterval(()=>{if(typeof Chart!=='undefined'){clearInterval(wait);update();setInterval(update,REFRESH);}},100);
+  setTimeout(()=>{if(!_chartReady){update();setInterval(update,REFRESH);}},4000);
+});
+})();
 </script>
 </body>
 </html>
