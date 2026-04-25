@@ -249,7 +249,7 @@
     }
 
     /* ── LAYOUT ── */
-    #s48-particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.5;}
+    #s48-particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.85;}
     #s48-shell{padding-top:60px;position:relative;z-index:1;}
     #s48-grid{
       max-width:1520px;margin:0 auto;
@@ -588,9 +588,10 @@
     @media(min-width:901px) and (max-width:1100px){.hw-grid{grid-template-columns:repeat(2,1fr)!important;}}
     .p-blocks{grid-column:1/7;}
     .p-miners{grid-column:7/-1;}
-    .p-stability{grid-column:1/7;}
-    .p-scores{grid-column:7/10;}
-    .p-donate{grid-column:10/-1;}
+    .p-stability{grid-column:1/-1;}
+    .p-scores{grid-column:1/-1;}
+    .p-donate{grid-column:1/-1;}
+    @media(max-width:800px){.donate-grid{grid-template-columns:1fr!important;gap:20px!important;}}
     .p-lookup{grid-column:1/-1;}
     .p-market{grid-column:1/-1;}
     @media(max-width:1100px){
@@ -952,6 +953,7 @@
     .wsb-val.gold{color:var(--gold);}
 
     /* ── TABLES ── */
+    .panel-body{overflow-x:auto;}
     .data-table{width:100%;border-collapse:collapse;font-size:.88rem;}
     .data-table th{
       font-family:var(--mono);font-size:.62rem;font-weight:600;
@@ -1036,9 +1038,8 @@
 
     /* ── LOOKUP ── */
     .p-lookup .panel-body{
-      display:grid;grid-template-columns:1fr 1fr;gap:24px;
+      display:grid;grid-template-columns:1fr;gap:24px;
     }
-    @media(max-width:900px){.p-lookup .panel-body{grid-template-columns:1fr;}}
 
     .source-note{
       font-family:var(--mono);font-size:.62rem;
@@ -1255,7 +1256,6 @@
     <div class="live-pulse" title="Live data"></div>
   </div>
 </header>
-<div id="shell"><div id="grid">
 
 <app-root></app-root>
 
@@ -1331,7 +1331,6 @@
     <div class="stat-cell"><div class="stat-label">BTC Price</div><div class="stat-val green" id="sc-btc">—</div><div class="stat-unit">USD</div></div>
     <div class="stat-cell"><div class="stat-label">Block Reward</div><div class="stat-val orange" id="sc-blockval">—</div><div class="stat-unit"><span id="sc-blockval-btc">3.125 BTC</span> at spot</div></div>
   </div>
-</div>
 
   <!-- ── PERSONAL ODDS — only shows when address is loaded ── -->
   <section class="panel p-personal-odds" id="personal-odds-panel" style="display:none;">
@@ -1547,12 +1546,12 @@
       <span class="panel-badge purple">PER-WORKER METRICS</span>
     </div>
     <div class="panel-body">
-      <div>
-        <div id="s48-lookup-result"></div>
-      </div>
       <div id="lookup-chart-panel" style="display:none;">
         <div style="font-family:var(--mono);font-size:.62rem;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;font-weight:600;">Address Hashrate Trend</div>
-        <div class="chart-wrap-sm"><canvas id="s48-client-chart"></canvas></div>
+        <div class="chart-wrap-sm" style="height:220px;"><canvas id="s48-client-chart"></canvas></div>
+      </div>
+      <div>
+        <div id="s48-lookup-result"></div>
       </div>
     </div>
   </section>
@@ -1587,7 +1586,7 @@
         <div class="wsb-cell"><div class="wsb-label">Average HR</div><div class="wsb-val" style="color:var(--blue);" id="stat-avg">—</div></div>
         <div class="wsb-cell"><div class="wsb-label">Peak HR</div><div class="wsb-val green" id="stat-peak">—</div></div>
         <div class="wsb-cell"><div class="wsb-label">Variance</div><div class="wsb-val orange" id="stat-var">—</div></div>
-        <div class="wsb-cell"><div class="wsb-label">Last Share</div><div class="wsb-val gold" id="stat-lastshare">—</div></div>
+        <div class="wsb-cell"><div class="wsb-label">Samples</div><div class="wsb-val gold" id="stat-lastshare">—</div></div>
       </div>
     </div>
   </section>
@@ -1604,16 +1603,46 @@
 
   <section class="panel p-donate" aria-label="Donate Bitcoin">
     <div class="panel-head">
-      <span class="panel-title">Donate</span>
+      <span class="panel-title">Support SoloStrike.io</span>
       <a href="mailto:support@solostrike.io" style="font-family:var(--mono);font-size:.65rem;color:var(--blue);text-decoration:none;letter-spacing:.04em;">support@solostrike.io</a>
     </div>
-    <div class="panel-body">
-      <div class="donate-wrap">
-        <div class="donate-qr-type orange">Bitcoin On-Chain</div>
-        <div id="qr-btc"></div>
-        <div class="donate-qr-label">
-          <a onclick="window.location='bitcoin:15GotcHsykf4mdWF8cGZM5nVzYcysJk5YH?label=SoloStrike.io';return false;" href="#" title="Open in Bitcoin wallet">15GotcHsykf4mdWF8cGZM5nVzYcysJk5YH</a>
+    <div class="panel-body" style="padding:24px;">
+      <div class="donate-grid" style="display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center;">
+
+        <!-- Left: QR + address -->
+        <div class="donate-wrap" style="display:flex;flex-direction:column;align-items:center;gap:10px;min-width:200px;">
+          <div class="donate-qr-type orange" style="font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;color:var(--orange);text-transform:uppercase;font-weight:600;">Bitcoin On-Chain</div>
+          <div id="qr-btc"></div>
+          <div class="donate-qr-label" style="font-family:var(--mono);font-size:.7rem;color:var(--text-sec);text-align:center;">
+            <a onclick="window.location='bitcoin:15GotcHsykf4mdWF8cGZM5nVzYcysJk5YH?label=SoloStrike.io';return false;" href="#" title="Open in Bitcoin wallet" style="color:var(--orange);text-decoration:none;word-break:break-all;">15GotcHsykf4mdWF8cGZM5nVzYcysJk5YH</a>
+          </div>
+          <button class="copy-btn" onclick="s48Copy('15GotcHsykf4mdWF8cGZM5nVzYcysJk5YH',this)" style="margin-top:6px;padding:6px 14px;font-size:.66rem;letter-spacing:.12em;">Copy Address</button>
         </div>
+
+        <!-- Right: descriptive content -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.4;">
+            SoloStrike.io is a free, zero-fee solo Bitcoin mining pool.
+          </div>
+          <div style="font-family:var(--mono);font-size:.78rem;color:var(--text-sec);line-height:1.7;">
+            100% of any block reward you mine goes directly to your address. No pool fee, no withholding, no middleman. The pool runs on dedicated infrastructure with multi-node redundancy to give your solved blocks the fastest path to the Bitcoin network.
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px;">
+            <div style="background:var(--bg-row);border:1px solid var(--border);padding:10px 14px;border-radius:var(--radius);">
+              <div style="font-family:var(--mono);font-size:.6rem;color:var(--orange);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;">What donations fund</div>
+              <div style="font-family:var(--mono);font-size:.74rem;color:var(--text-sec);">Server hosting · BTC node infra · Bandwidth · Domain &amp; SSL</div>
+            </div>
+            <div style="background:var(--bg-row);border:1px solid var(--border);padding:10px 14px;border-radius:var(--radius);">
+              <div style="font-family:var(--mono);font-size:.6rem;color:var(--green);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;">Pool fee</div>
+              <div style="font-family:var(--mono);font-size:.74rem;color:var(--text-sec);">0% — donations are entirely voluntary, never deducted from rewards</div>
+            </div>
+            <div style="background:var(--bg-row);border:1px solid var(--border);padding:10px 14px;border-radius:var(--radius);">
+              <div style="font-family:var(--mono);font-size:.6rem;color:var(--blue);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;">Won a block?</div>
+              <div style="font-family:var(--mono);font-size:.74rem;color:var(--text-sec);">Tips appreciated but never required — congrats on the find!</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -1680,7 +1709,7 @@
           <div class="win-hashrate">~130 TH/s combined (6× NerdQaxe++ + Avalon)</div>
           <div class="win-reward">~3.15 BTC · ~$342,000</div>
           <div class="win-date" data-win-date="2025-10-27">October 27, 2025 <span class="win-age-badge" id="win-age-1"></span></div>
-          <div class="win-note"><span class="hl-green">★ Mined through Public Pool</span> — the same software powering SoloStrike.io. Winner used the reward to pay off his home.</div>
+          <div class="win-note"><span class="hl-green">★ Mined through Public Pool</span> — proves a 130 TH/s solo setup can win. SoloStrike.io runs the same family of solo software (CKPool-solo). Winner used the reward to pay off his home.</div>
         </div>
         <div class="win-card community-win">
           <div class="win-card-top"><span class="win-block">Block #924,569</span><span class="win-pool-badge solo-ckpool">Solo CKPool</span></div>
@@ -1789,7 +1818,7 @@
 
 </div>
 <footer id="s48-footer" role="contentinfo">
-  <span class="hl">SoloStrike.io</span>  ·  Solo Mining Pool  ·  stratum+tcp://solostrike.io:3334  ·  Powered by <a href="https://web.public-pool.io" target="_blank" rel="noopener">Public Pool</a>
+  <span class="hl">SoloStrike.io</span>  ·  Solo Mining Pool  ·  stratum+tcp://solostrike.io:3334  ·  Powered by <a href="https://bitbucket.org/ckolivas/ckpool" target="_blank" rel="noopener">CKPool</a> by Con Kolivas (GPLv3)  ·  Forked &amp; packaged by <a href="https://github.com/gbechtel-beck/umbrelsolostrike-app-store" target="_blank" rel="noopener">Gil Bechtel</a> &mdash; <a href="https://github.com/gbechtel-beck/umbrelsolostrike-app-store" target="_blank" rel="noopener" style="color:var(--green);">install on Umbrel &rarr;</a>
 </footer>
 </div>
 
@@ -2016,7 +2045,9 @@ window.s48Copy=function(text,btn){
   }
 };
 
-/* Format probability based on magnitude */
+/* Format probability based on magnitude.
+   Big values render as percentages; tiny values render as "1 in N" since
+   solo-mining probabilities are too small to read meaningfully as % */
 function fmtProbability(p){
   if(p===null||p===undefined||isNaN(p))return{val:'—',cls:'vlow',sub:'unable to calculate'};
   if(p>=0.9999)return{val:'~Certain',cls:'high',sub:'effectively guaranteed'};
@@ -2025,9 +2056,18 @@ function fmtProbability(p){
   if(p>=0.1)return{val:(p*100).toFixed(1)+'%',cls:'med',sub:'realistic chance'};
   if(p>=0.01)return{val:(p*100).toFixed(2)+'%',cls:'med',sub:'long shot'};
   if(p>=0.001)return{val:(p*100).toFixed(3)+'%',cls:'low',sub:'very long odds'};
-  if(p>=0.0001)return{val:(p*100).toFixed(4)+'%',cls:'low',sub:'rare event'};
-  if(p>=0.000001)return{val:(p*100).toExponential(1)+'%',cls:'vlow',sub:'lottery-tier'};
-  if(p>0)return{val:(p*100).toExponential(1)+'%',cls:'vlow',sub:'extreme long shot'};
+  // For tiny probabilities, "1 in N" is much more legible than scientific notation
+  if(p>0){
+    const n=Math.round(1/p);
+    const oneIn=n>=1e12?'1 in '+(n/1e12).toFixed(1)+'T':
+                n>=1e9?'1 in '+(n/1e9).toFixed(1)+'B':
+                n>=1e6?'1 in '+(n/1e6).toFixed(1)+'M':
+                n>=1e3?'1 in '+(n/1e3).toFixed(0)+'K':
+                '1 in '+n.toLocaleString();
+    const cls=p>=0.0001?'low':p>=0.000001?'vlow':'vlow';
+    const sub=p>=0.0001?'rare event':p>=0.000001?'lottery-tier':'extreme long shot';
+    return{val:oneIn,cls,sub};
+  }
   return{val:'~0%',cls:'vlow',sub:'effectively zero'};
 }
 
@@ -2114,12 +2154,14 @@ function initVarChart(pts){
     {label:'Actual HR',data:vals,borderColor:'rgba(251,146,60,.6)',backgroundColor:'rgba(251,146,60,.05)',borderWidth:1.5,pointRadius:0,fill:true,tension:0.2},
     {label:'1h Avg',data:roll,borderColor:'#7DD3FC',backgroundColor:'transparent',borderWidth:2,pointRadius:0,fill:false,tension:0.5,borderDash:[4,3]}
   ]},options:{...o,plugins:{...o.plugins,legend:{display:true,labels:{color:c.tick,font:{family:'JetBrains Mono',size:10},boxWidth:20,padding:12}}}}});
-  const avg=vals.reduce((a,b)=>a+b,0)/vals.length,peak=Math.max(...vals);
-  const vari=Math.sqrt(vals.reduce((a,b)=>a+(b-avg)**2,0)/vals.length)/avg*100;
-  $('stat-avg').textContent=fmtHRstr(avg*1e12);$('stat-peak').textContent=fmtHRstr(peak*1e12);$('stat-var').textContent=vari.toFixed(1)+'%';
-  // Last share = most recent timestamp
-  const last=pts.length?pts[pts.length-1].label:null;
-  $('stat-lastshare').textContent=last?timeAgo(last):'—';
+  const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+  const peak=vals.length?Math.max(...vals):0;
+  const vari=(vals.length>1&&avg>0)?Math.sqrt(vals.reduce((a,b)=>a+(b-avg)**2,0)/vals.length)/avg*100:null;
+  $('stat-avg').textContent=avg>0?fmtHRstr(avg*1e12):'—';
+  $('stat-peak').textContent=peak>0?fmtHRstr(peak*1e12):'—';
+  $('stat-var').textContent=vari!==null?vari.toFixed(1)+'%':'—';
+  // Sample count (more useful than "last share" which was misleading on this panel)
+  $('stat-lastshare').textContent=pts.length?pts.length+' pts':'—';
 }
 function initClientChart(pts,label){
   const ctx=$('s48-client-chart');if(!ctx||typeof Chart==='undefined')return;
@@ -2256,13 +2298,76 @@ function renderMiners(info){
 
 function renderScores(info){
   const el=$('s48-scores-body');
-  const hist=(info?.highScores||[]).map(s=>({type:'hist',label:s.bestDifficultyUserAgent||'unknown',difficulty:s.bestDifficulty||0,date:s.updatedAt||null}));
-  const live=(info?.userAgents||[]).map(a=>({type:'live',label:a.userAgent||'unknown',difficulty:a.bestDifficulty||0,workers:a.count}));
-  const m={};
-  for(const r of [...hist,...live]){const k=r.label.toLowerCase();if(!m[k]||r.difficulty>m[k].difficulty)m[k]={...r};else if(m[k].type==='hist'&&r.type==='live'&&r.difficulty>0){m[k].liveVal=r.difficulty;m[k].workers=r.workers;}}
-  const sorted=Object.values(m).sort((a,b)=>b.difficulty-a.difficulty);
-  if(!sorted.length){el.innerHTML='<div class="empty">No records.</div>';return;}
-  el.innerHTML='<div class="source-note"><span><span class="dot-hist">DB RECORD</span> persistent</span><span><span class="dot-live">LIVE</span> session</span></div><table class="data-table"><thead><tr><th>Rank</th><th>Device</th><th>Best Diff</th></tr></thead><tbody>'+sorted.slice(0,8).map((r,i)=>{const rl=['#1','#2','#3'][i]||'#'+(i+1);return`<tr><td style="font-family:var(--mono);font-size:.7rem;color:${i<3?'var(--orange)':'var(--text-sec)'};font-weight:600;">${rl}</td><td><span class="type-tag">${r.label}</span></td><td><span class="orange" style="font-family:var(--mono);font-size:.85rem">${fmtNum(r.difficulty)}</span></td></tr>`;}).join('')+'</tbody></table>';
+  const session=(info?.sessionScores||[]);
+  const hist=(info?.highScores||[]).map(s=>({label:s.bestDifficultyUserAgent||'unknown',difficulty:s.bestDifficulty||0,date:s.updatedAt||null}));
+
+  const fmtDur=(s)=>{
+    if(!s||s<60)return (s||0)+'s';
+    if(s<3600)return Math.floor(s/60)+'m '+(s%60)+'s';
+    if(s<86400)return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m';
+    return Math.floor(s/86400)+'d '+Math.floor((s%86400)/3600)+'h';
+  };
+
+  let html='';
+
+  // ---- PER-SESSION (active workers only) ----
+  html+='<div style="margin-bottom:14px;">';
+  html+='<div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;color:var(--green);text-transform:uppercase;margin-bottom:8px;">'
+        +'<span class="dot-live">●</span> PER-SESSION — Active workers (current run)</div>';
+  if(!session.length){
+    html+='<div class="empty" style="padding:12px 0;">No active workers in current session.</div>';
+  } else {
+    html+='<table class="data-table"><thead><tr>'
+         +'<th>#</th><th>Device</th>'
+         +'<th>Best</th>'
+         +'<th>HR 1m</th><th>HR 5m</th>'
+         +'<th>Avg</th><th>Peak</th>'
+         +'<th>Session</th>'
+         +'</tr></thead><tbody>';
+    session.slice(0,8).forEach((r,i)=>{
+      const rk=['#1','#2','#3'][i]||'#'+(i+1);
+      const hr1m=fmtHR(r.hashrate1m||0);
+      const hr5m=fmtHR(r.hashrate5m||0);
+      const hrAvg=fmtHR(r.hashrateAvg||0);
+      const hrPk=fmtHR(r.hashratePeak||0);
+      html+=`<tr>
+        <td style="font-family:var(--mono);font-size:.7rem;color:${i<3?'var(--orange)':'var(--text-sec)'};font-weight:600;">${rk}</td>
+        <td><span class="type-tag">${r.device||'unknown'}</span></td>
+        <td><span class="orange" style="font-family:var(--mono);font-size:.82rem;font-weight:600;">${fmtNum(r.bestDiff)}</span></td>
+        <td class="green" style="font-family:var(--mono);font-size:.72rem;">${hr1m.val} ${hr1m.unit}</td>
+        <td class="blue" style="font-family:var(--mono);font-size:.72rem;">${hr5m.val} ${hr5m.unit}</td>
+        <td class="sec" style="font-family:var(--mono);font-size:.72rem;">${hrAvg.val} ${hrAvg.unit}</td>
+        <td class="gold" style="font-family:var(--mono);font-size:.72rem;">${hrPk.val} ${hrPk.unit}</td>
+        <td class="dim" style="font-family:var(--mono);font-size:.7rem;">${fmtDur(r.sessionDurationSec)}</td>
+      </tr>`;
+    });
+    html+='</tbody></table>';
+  }
+  html+='</div>';
+
+  // ---- ALL-TIME (lifetime, regardless of active state) ----
+  html+='<div style="margin-top:18px;border-top:1px solid var(--border);padding-top:14px;">';
+  html+='<div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">'
+        +'<span class="dot-hist">●</span> ALL-TIME — Lifetime records (persistent)</div>';
+  if(!hist.length){
+    html+='<div class="empty" style="padding:12px 0;">No historical records.</div>';
+  } else {
+    const sorted=hist.filter(x=>x.difficulty>0).sort((a,b)=>b.difficulty-a.difficulty).slice(0,8);
+    html+='<table class="data-table"><thead><tr><th>#</th><th>Device</th><th>Best Diff</th><th>Last Seen</th></tr></thead><tbody>';
+    sorted.forEach((r,i)=>{
+      const rk=['#1','#2','#3'][i]||'#'+(i+1);
+      html+=`<tr>
+        <td style="font-family:var(--mono);font-size:.7rem;color:${i<3?'var(--gold)':'var(--text-sec)'};font-weight:600;">${rk}</td>
+        <td><span class="type-tag">${r.label}</span></td>
+        <td><span class="orange" style="font-family:var(--mono);font-size:.82rem;">${fmtNum(r.difficulty)}</span></td>
+        <td class="dim" style="font-family:var(--mono);font-size:.7rem;">${r.date?timeAgo(r.date):'—'}</td>
+      </tr>`;
+    });
+    html+='</tbody></table>';
+  }
+  html+='</div>';
+
+  el.innerHTML=html;
 }
 
 /* ── WORKER HEALTH ── */
@@ -2279,18 +2384,44 @@ function renderWorkerHealth(workers){
   const bestDiff=workers.reduce((m,w)=>Math.max(m,w.bestDifficulty||0),0);
   const hrFmt=fmtHR(totalHR);
 
+  // Avg time since last share across active workers — simple responsiveness signal
+  const validLast=workers.map(w=>w.lastShareSec).filter(x=>x!=null&&isFinite(x));
+  const avgLast=validLast.length?Math.round(validLast.reduce((a,b)=>a+b,0)/validLast.length):null;
+  // Health tiers based on time since last share. With vardiff at ~10s target,
+  // a healthy worker should show <60s. >5min means stale.
+  const lastShareColor=(v)=>v==null?'var(--text-dim)':v<=60?'var(--green)':v<=300?'var(--gold)':'var(--red)';
+  const fmtAge=(v)=>{
+    if(v==null)return'—';
+    if(v<60)return v+'s';
+    if(v<3600)return Math.floor(v/60)+'m '+Math.round(v%60)+'s';
+    return Math.floor(v/3600)+'h '+Math.floor((v%3600)/60)+'m';
+  };
+
   el.innerHTML=
     '<div class="worker-summary-bar">'+
     '<div class="wsb-cell"><div class="wsb-label">Total Workers</div><div class="wsb-val green">'+workers.length+'</div></div>'+
     '<div class="wsb-cell"><div class="wsb-label">Online</div><div class="wsb-val green">'+onlineCount+'/'+workers.length+'</div></div>'+
     '<div class="wsb-cell"><div class="wsb-label">Combined Hashrate</div><div class="wsb-val orange">'+hrFmt.val+' '+hrFmt.unit+'</div></div>'+
     '<div class="wsb-cell"><div class="wsb-label">Best Diff (Session)</div><div class="wsb-val gold">'+fmtNum(bestDiff)+'</div></div>'+
+    '<div class="wsb-cell" title="Average time since each active worker last submitted a share. With vardiff (ckpool default), workers should typically show under 60 seconds. Higher means a worker is struggling, disconnected, or running at very low hashrate." style="cursor:help;"><div class="wsb-label">Avg Last Share</div><div class="wsb-val" style="color:'+lastShareColor(avgLast)+'">'+fmtAge(avgLast)+'</div></div>'+
     '</div>'+
     '<div class="worker-grid">'+[...workers].sort((a,b)=>(b.hashRate||0)-(a.hashRate||0)).map(w=>{
       const s=w.lastSeen?Math.floor((Date.now()-new Date(w.lastSeen).getTime())/1000):9999;
       const st=s<300?'online':s<900?'stale':'offline';
       const hr=fmtHR(w.hashRate||0);
-      return`<div class="worker-card ${st}"><div class="wc-name" title="${w.name||''}">${w.name||'—'}</div><div class="wc-hr">${hr.val} <span>${hr.unit}</span></div><div class="wc-diff">Best: ${fmtNum(w.bestDifficulty||0)}</div><div class="wc-seen">${timeAgo(w.lastSeen)}</div><div class="wc-status ${st}">${st}</div></div>`;
+      const lastShareSec=w.lastShareSec;
+      const lsColor=lastShareColor(lastShareSec);
+      const lastShareStr=fmtAge(lastShareSec);
+      const cardTooltip=(lastShareSec!=null)
+        ?`${w.name||'worker'} last submitted a share ${lastShareStr} ago. ${lastShareSec<=60?'Healthy — actively mining.':lastShareSec<=300?'Slightly slow — may be normal variance for a low-hashrate worker.':'Stale — likely a connection issue or the miner stopped working.'}`
+        :`${w.name||'worker'}: no recent share data.`;
+      return`<div class="worker-card ${st}" title="${cardTooltip}" style="cursor:help;">
+        <div class="wc-name">${w.name||'—'}</div>
+        <div class="wc-hr">${hr.val} <span>${hr.unit}</span></div>
+        <div class="wc-diff">Best: ${fmtNum(w.bestDifficulty||0)}</div>
+        <div class="wc-seen" style="color:${lsColor};font-family:var(--mono);font-size:.65rem;">⟲ Last share ${lastShareStr} ago</div>
+        <div class="wc-status ${st}">${st}</div>
+      </div>`;
     }).join('')+'</div>';
 }
 
@@ -2343,15 +2474,49 @@ window.s48Lookup=async function(){
 
   $('s48-lookup-result').innerHTML=
     '<div style="font-family:var(--mono);font-size:.62rem;color:var(--text-dim);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">'+
-    'Per-worker session metrics for '+shortAddr(addr)+'. Public Pool API does not expose share counts; Best Diff is the highest difficulty share this session.'+
+    'Per-worker session metrics for '+shortAddr(addr)+'. Sessions reset when a worker reconnects after going stale (>5 min).'+
     '</div>'+
-    '<table class="data-table"><thead><tr><th>Worker</th><th>Hashrate</th><th>Best Diff</th><th>Uptime</th><th>Status</th></tr></thead><tbody>'+
-    [...workers].sort((a,b)=>(b.hashRate||0)-(a.hashRate||0)).map(w=>{
-      const hr=fmtHR(w.hashRate||0);
-      const s=w.lastSeen?Math.floor((Date.now()-new Date(w.lastSeen).getTime())/1000):9999;
-      const st=s<300?'online':s<900?'stale':'offline';
+    '<table class="data-table"><thead><tr>'+
+      '<th>Worker</th>'+
+      '<th>HR 1m</th>'+
+      '<th>HR 5m</th>'+
+      '<th>Avg</th>'+
+      '<th>Peak</th>'+
+      '<th>Session Best</th>'+
+      '<th>All-Time</th>'+
+      '<th title="Time since this worker last submitted a share to the pool. With vardiff, healthy workers should show under 60 seconds. Green ≤60s · Gold ≤5m · Red >5m." style="cursor:help;">Last Share</th>'+
+      '<th>Session</th>'+
+      '<th>Status</th>'+
+    '</tr></thead><tbody>'+
+    [...workers].sort((a,b)=>(b.hashrate5m||b.hashRate||0)-(a.hashrate5m||a.hashRate||0)).map(w=>{
+      const hr1m=fmtHR(w.hashrate1m||0);
+      const hr5m=fmtHR(w.hashrate5m||w.hashRate||0);
+      const hrAvg=fmtHR(w.hashrateAvg||0);
+      const hrPk=fmtHR(w.hashratePeak||0);
+      const sec=w.lastSeen?Math.floor((Date.now()-new Date(w.lastSeen).getTime())/1000):9999;
+      const st=sec<300?'online':sec<900?'stale':'offline';
       const sc=st==='online'?'var(--green)':st==='stale'?'var(--gold)':'var(--red)';
-      return`<tr><td class="mono">${w.name||'—'}</td><td class="orange">${hr.val} <span class="sec">${hr.unit}</span></td><td class="sec">${fmtNum(w.bestDifficulty||0)}</td><td class="sec">${fmtUptime(w.startTime)}</td><td style="font-family:var(--mono);font-size:.7rem;font-weight:600;color:${sc}">● ${st}</td></tr>`;
+      const dur=w.sessionDurationSec||0;
+      const fmtDur=(s)=>!s||s<60?(s||0)+'s':s<3600?Math.floor(s/60)+'m':s<86400?Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m':Math.floor(s/86400)+'d';
+      // Last-share tier coloring
+      const ls=w.lastShareSec;
+      const lsColor=ls==null?'var(--text-dim)':ls<=60?'var(--green)':ls<=300?'var(--gold)':'var(--red)';
+      const lastShareStr=(ls==null)?'—':ls<60?ls+'s':ls<3600?Math.floor(ls/60)+'m '+(ls%60)+'s':Math.floor(ls/3600)+'h';
+      const lsTitle=(ls!=null)
+        ?`${ls<=60?'Healthy — actively mining.':ls<=300?'Slightly slow — may be normal variance for a low-hashrate worker.':'Stale — likely a connection issue or stopped miner.'}`
+        :'No recent share data.';
+      return`<tr>
+        <td class="mono">${w.name||'—'}</td>
+        <td class="green" style="font-family:var(--mono);font-size:.74rem;">${hr1m.val} <span class="sec">${hr1m.unit}</span></td>
+        <td class="blue" style="font-family:var(--mono);font-size:.74rem;">${hr5m.val} <span class="sec">${hr5m.unit}</span></td>
+        <td class="sec" style="font-family:var(--mono);font-size:.72rem;">${hrAvg.val} ${hrAvg.unit}</td>
+        <td class="gold" style="font-family:var(--mono);font-size:.72rem;">${hrPk.val} ${hrPk.unit}</td>
+        <td class="orange" style="font-family:var(--mono);font-size:.78rem;font-weight:600;">${fmtNum(w.sessionBestDiff||0)}</td>
+        <td class="dim" style="font-family:var(--mono);font-size:.72rem;">${fmtNum(w.bestDifficulty||0)}</td>
+        <td title="${lsTitle}" style="font-family:var(--mono);font-size:.74rem;font-weight:600;color:${lsColor};cursor:help;">${lastShareStr}</td>
+        <td class="dim" style="font-family:var(--mono);font-size:.7rem;">${fmtDur(dur)}</td>
+        <td style="font-family:var(--mono);font-size:.7rem;font-weight:600;color:${sc}">● ${st}</td>
+      </tr>`;
     }).join('')+'</tbody></table>';
 
   if(chartData&&chartData.length){const pts=chartData.filter(p=>p.data>0).slice(-72);if(pts.length){$('lookup-chart-panel').style.display='';_lastClientData={pts,label:shortAddr(addr)};initClientChart(pts,shortAddr(addr));}}
@@ -2481,36 +2646,57 @@ async function update(){
   try{if(chart?.length){const pts=chart.filter(p=>p&&p.data>=0).slice(-72);if(pts.length){_lastChartData=pts;_lastVarData=pts;if(!chartReady){initHrChart(pts);initVarChart(pts);chartReady=true;}else{initHrChart(pts);initVarChart(pts);}}}}catch(e){}
 }
 
-/* ── PARTICLES ── */
+/* ── PARTICLES (subtle moving network) ── */
 (function(){
   const canvas=$('s48-particles');
   if(!canvas)return;
   const ctx=canvas.getContext('2d');
-  const N=80,MAX_DIST=140;
+  const N=130,MAX_DIST=160;
   let W,H,particles=[];
   const isDark=()=>document.documentElement.getAttribute('data-theme')!=='light';
   function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
   function randomParticle(){
-    return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*0.3,vy:(Math.random()-.5)*0.3,r:Math.random()*1.5+0.6,opacity:Math.random()*0.4+0.3};
+    // Multiple orange shades for visual depth (matches public-pool.io vibe)
+    const shades=['249,115,22','220,90,15','251,146,60','180,70,10','230,100,20'];
+    const shade=shades[Math.floor(Math.random()*shades.length)];
+    return{
+      x:Math.random()*W,
+      y:Math.random()*H,
+      // Slight horizontal bias (left-to-right drift) gives "flow" feel
+      vx:(Math.random()*0.6-0.15),
+      vy:(Math.random()-0.5)*0.35,
+      r:Math.random()*1.8+0.8,
+      shade,
+      opacity:Math.random()*0.4+0.4
+    };
   }
   function init(){resize();particles=[];for(let i=0;i<N;i++)particles.push(randomParticle());}
   function draw(){
     ctx.clearRect(0,0,W,H);
     const dark=isDark();
+    // Connecting lines first (background layer)
     for(let i=0;i<particles.length;i++){
       for(let j=i+1;j<particles.length;j++){
         const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
         const dist=Math.sqrt(dx*dx+dy*dy);
         if(dist<MAX_DIST){
-          const alpha=(1-dist/MAX_DIST)*(dark?0.18:0.08);
-          ctx.beginPath();ctx.strokeStyle='rgba(251,146,60,'+alpha+')';ctx.lineWidth=0.5;
-          ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.stroke();
+          const alpha=(1-dist/MAX_DIST)*(dark?0.32:0.14);
+          ctx.beginPath();
+          ctx.strokeStyle='rgba(249,115,22,'+alpha+')';
+          ctx.lineWidth=0.6;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
         }
       }
     }
+    // Dots on top
     for(const p of particles){
-      const op=dark?p.opacity:p.opacity*0.4;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(251,146,60,'+op+')';ctx.fill();
+      const op=dark?p.opacity:p.opacity*0.5;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba('+p.shade+','+op+')';
+      ctx.fill();
     }
   }
   function update(){
