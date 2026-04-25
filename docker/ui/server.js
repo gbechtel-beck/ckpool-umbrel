@@ -116,12 +116,24 @@ async function fetchNetwork() {
 function refreshLogs() {
   try {
     // Pool status (merged from all files in logs/pool)
+    // ckpool writes NDJSON — multiple JSON objects, one per line.
+    // We must parse each line separately and merge, NOT JSON.parse the whole file.
     const pd = path.join(LOG_DIR, "pool");
     if (fs.existsSync(pd)) {
       let p = {};
       for (const f of fs.readdirSync(pd)) {
-        const d = readJson(path.join(pd, f));
-        if (d) Object.assign(p, d);
+        const fp = path.join(pd, f);
+        try {
+          const raw = fs.readFileSync(fp, "utf8");
+          for (const line of raw.split("\n")) {
+            const t = line.trim();
+            if (!t) continue;
+            try {
+              const d = JSON.parse(t);
+              Object.assign(p, d);
+            } catch (e) { /* skip malformed line */ }
+          }
+        } catch (e) { /* skip unreadable file */ }
       }
       cache.pool = p;
     }
