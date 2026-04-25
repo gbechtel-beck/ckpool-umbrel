@@ -2790,7 +2790,25 @@ function checkForNewBlock(blocks){
 // Bootstrap update cycle. The wrapper protects against any unhandled rejection
 // inside update() from killing the timer (defense in depth — Promise.allSettled
 // inside update() already prevents the most common cause).
-const _safeUpdate=()=>{try{const r=update();if(r&&r.catch)r.catch(e=>console.warn('update rejected:',e));}catch(e){console.warn('update threw:',e);}};
+const _safeUpdate=()=>{
+  // Pool-wide refresh
+  try{
+    const r=update();
+    if(r&&r.then){
+      r.then(()=>{
+        // After update completes, refresh worker panel too if an address is loaded.
+        // This makes the per-worker cards, AVG LAST SHARE, and COMBINED HASHRATE
+        // tick on the same 60s cadence as the rest of the dashboard.
+        if(_lastLookupAddr){
+          try{
+            const lr=s48Lookup();
+            if(lr&&lr.catch)lr.catch(e=>console.warn('lookup rejected:',e));
+          }catch(e){console.warn('lookup threw:',e);}
+        }
+      }).catch(e=>console.warn('update rejected:',e));
+    }
+  }catch(e){console.warn('update threw:',e);}
+};
 const waitChart=setInterval(()=>{if(typeof Chart!=='undefined'){clearInterval(waitChart);_safeUpdate();setInterval(_safeUpdate,REFRESH);}},100);
 
 let _qrTries=0;
