@@ -2448,7 +2448,10 @@ window.s48Lookup=async function(){
     if(aim)aim.href='https://mempool.space/address/'+encodeURIComponent(addr);
   }
 
-  const [data,chartData]=await Promise.all([get('/client/'+encodeURIComponent(addr)),get('/client/'+encodeURIComponent(addr)+'/chart')]);
+  // Use allSettled so a chart-history fetch failure can't break the lookup
+  const _lr=await Promise.allSettled([get('/client/'+encodeURIComponent(addr)),get('/client/'+encodeURIComponent(addr)+'/chart')]);
+  const data      = _lr[0].status==='fulfilled' ? _lr[0].value : null;
+  const chartData = _lr[1].status==='fulfilled' ? _lr[1].value : null;
   if(!data||!data.workers?.length){
     $('s48-lookup-result').innerHTML='<div class="empty">No active workers found for this address.<br><span style="color:var(--text-faint);">If you just pointed a miner at the pool, give it a moment to connect.</span></div>';
     renderWorkerHealth([]);
@@ -2631,7 +2634,13 @@ async function fetchRetarget(){
 
 /* ── MAIN UPDATE ── */
 async function update(){
-  const [info,network,chart,price]=await Promise.all([get('/info'),get('/network'),get('/info/chart'),fetchBTC()]);
+  // Use allSettled so one failed source (e.g. coincap blocked by network isolation)
+  // can't kill the whole update cycle and freeze the dashboard
+  const _r=await Promise.allSettled([get('/info'),get('/network'),get('/info/chart'),fetchBTC()]);
+  const info    = _r[0].status==='fulfilled' ? _r[0].value : null;
+  const network = _r[1].status==='fulfilled' ? _r[1].value : null;
+  const chart   = _r[2].status==='fulfilled' ? _r[2].value : null;
+  const price   = _r[3].status==='fulfilled' ? _r[3].value : null;
   _price=price;_network=network;
   try{if(info?.userAgents?.length){_poolHR=info.userAgents.reduce((s,a)=>s+(a.totalHashRate||0),0);const hr=fmtHR(_poolHR);$('sc-pool-hr').textContent=hr.val;$('sc-pool-hr-unit').textContent=hr.unit;$('tk-pool').textContent=hr.val+' '+hr.unit;$('sc-miners').textContent=info.userAgents.reduce((s,a)=>s+(a.count||0),0);}if(info?.uptime)$('si-uptime').textContent=fmtUptime(info.uptime);}catch(e){}
   try{if(network){const hashrate=network.networkhashps||network.networkHashrate||0;const diff=network.difficulty||0;const blocks=network.blocks||network.height||0;$('sc-net-hr').textContent=fmtEH(hashrate);$('tk-diff').textContent=diff?fmtDiff(diff)+'T':'—';$('tk-net').textContent=hashrate?fmtEH(hashrate)+' EH/s':'—';$('tk-block').textContent=blocks?'#'+String(Math.round(Number(blocks))):'—';}}catch(e){}
@@ -2778,7 +2787,11 @@ function checkForNewBlock(blocks){
   else{_prevBlockCount=count;}
 }
 
-const waitChart=setInterval(()=>{if(typeof Chart!=='undefined'){clearInterval(waitChart);update();setInterval(update,REFRESH);}},100);
+// Bootstrap update cycle. The wrapper protects against any unhandled rejection
+// inside update() from killing the timer (defense in depth — Promise.allSettled
+// inside update() already prevents the most common cause).
+const _safeUpdate=()=>{try{const r=update();if(r&&r.catch)r.catch(e=>console.warn('update rejected:',e));}catch(e){console.warn('update threw:',e);}};
+const waitChart=setInterval(()=>{if(typeof Chart!=='undefined'){clearInterval(waitChart);_safeUpdate();setInterval(_safeUpdate,REFRESH);}},100);
 
 let _qrTries=0;
 const waitQR=setInterval(()=>{
